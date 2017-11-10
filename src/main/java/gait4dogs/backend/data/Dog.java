@@ -1,4 +1,4 @@
-package gait4dogs.backend;
+package gait4dogs.backend.data;
 
 import java.util.Date;
 

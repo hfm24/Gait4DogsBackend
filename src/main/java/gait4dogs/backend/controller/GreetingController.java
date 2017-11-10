@@ -2,7 +2,7 @@ package gait4dogs.backend.controller;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import gait4dogs.backend.Greeting;
+import gait4dogs.backend.data.Greeting;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
