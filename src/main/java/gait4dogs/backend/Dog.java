@@ -7,14 +7,14 @@ public class Dog {
     private float height;
     private float weight;
     private String breed;
-    private Date birthDate;
+    private String birthDate;
     private long id;
 
     public Dog() {
 
     }
 
-    public Dog(String name, float height, float weight, String breed, Date birthDate) {
+    public Dog(String name, float height, float weight, String breed, String birthDate) {
         this.name = name;
         this.height = height;
         this.weight = weight;
@@ -40,7 +40,7 @@ public class Dog {
         return breed;
     }
 
-    public Date getBirthDate() {
+    public String getBirthDate() {
         return birthDate;
     }
 
