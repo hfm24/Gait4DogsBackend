@@ -10,18 +10,14 @@ public class Dog {
     private String birthDate;
     private long id;
 
-    public Dog() {
-
-    }
-
-    public Dog(String name, float height, float weight, String breed, String birthDate) {
+    public Dog(String name, float height, float weight, String breed, String birthDate, long id) {
         this.name = name;
         this.height = height;
         this.weight = weight;
         this.breed = breed;
         this.birthDate = birthDate;
 
-        this.id = 0;
+        this.id = id;
     }
 
     public String getName() {
