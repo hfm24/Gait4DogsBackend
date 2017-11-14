@@ -19,7 +19,16 @@ public class DogController {
     }
 
     @RequestMapping("/dog/get")
-    public Dog getDog(@RequestParam(value="name", defaultValue = "Spot") String name){
+    public Dog getDog(@RequestParam(value="name", defaultValue = "Spot") String name) {
         return new Dog("Spot", 5, 80, "German Shepherd", "October 8th, 2017", counter.incrementAndGet());
+    }
+
+    @RequestMapping("/dog/getAll")
+    public Dog[] getAll() {
+        Dog[] dogs = new Dog[2];
+        for (int i = 0; i < dogs.length; i++) {
+            dogs[i] = getDog("Dog " + i);
+        }
+        return dogs;
     }
 }
