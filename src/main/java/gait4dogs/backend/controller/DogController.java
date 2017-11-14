@@ -15,11 +15,11 @@ public class DogController {
 
     @RequestMapping("/dog/add")
     public Dog addDog() {
-        return new Dog("Spot", 5, 80, "German Shepherd", "October 8th, 2017");
+        return new Dog("Spot", 5, 80, "German Shepherd", "October 8th, 2017", counter.incrementAndGet());
     }
 
     @RequestMapping("/dog/get")
     public Dog getDog(@RequestParam(value="name", defaultValue = "Spot") String name){
-        return new Dog("Spot", 5, 80, "German Shepherd", "October 8th, 2017");
+        return new Dog("Spot", 5, 80, "German Shepherd", "October 8th, 2017", counter.incrementAndGet());
     }
 }
