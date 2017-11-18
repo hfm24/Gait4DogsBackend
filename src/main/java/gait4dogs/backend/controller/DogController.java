@@ -1,21 +1,35 @@
 package gait4dogs.backend.controller;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import gait4dogs.backend.data.Dog;
 import gait4dogs.backend.data.DogAnalytics;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpEntity;
+import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 public class DogController {
 
     private final AtomicLong counter = new AtomicLong();
 
-    @RequestMapping("/dog/add")
-    public Dog addDog() {
-        return new Dog("Spot", 5, 80, "German Shepherd", "October 8th, 2017", counter.incrementAndGet());
+    @RequestMapping(value="/dog/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @ResponseBody
+    public Dog addDog(HttpEntity<String> httpEntity) throws IOException {
+        String json = httpEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode dogObj = mapper.readTree(json);
+        JsonNode nameNode = dogObj.get("name");
+        String name = nameNode.textValue();
+        int height = dogObj.get("height").intValue();
+        int weight = dogObj.get("weight").intValue();
+        String breed = dogObj.get("breed").textValue();
+        String birthDate = dogObj.get("birthDate").textValue();
+        return new Dog(name, height, weight, breed, birthDate, counter.incrementAndGet());
     }
 
     @RequestMapping("/dog/get")
