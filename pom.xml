@@ -39,6 +39,11 @@
 			<artifactId>mongo-java-driver</artifactId>
 			<version>3.5.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-mongodb</artifactId>
+		</dependency>
+
 
 
 	</dependencies>
@@ -60,8 +65,12 @@
 
 	<repositories>
 		<repository>
-			<id>spring-releases</id>
+			<id>spring-libs-release</id>
+			<name>Spring Releases</name>
 			<url>https://repo.spring.io/libs-release</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
 		</repository>
 	</repositories>
 	<pluginRepositories>

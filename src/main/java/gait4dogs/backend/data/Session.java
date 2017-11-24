@@ -1,12 +1,17 @@
 package gait4dogs.backend.data;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection="Sessions")
 public class Session {
+    @Id
     private long id;
     private long dogId;
-    private String rawData;
+    private SessionRawData rawData;
     private String notes;
 
-    public Session(long id, long dogId, String rawData, String notes) {
+    public Session(long id, long dogId, SessionRawData rawData, String notes) {
         this.id = id;
         this.dogId = dogId;
         this.rawData = rawData;
@@ -21,7 +26,7 @@ public class Session {
         return dogId;
     }
 
-    public String getRawData() {
+    public SessionRawData getRawData() {
         return rawData;
     }
 

@@ -1,5 +1,8 @@
 package gait4dogs.backend.data;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document
 public class SessionRawData {
     private long[] epoc;
     private String[] timestamp;
