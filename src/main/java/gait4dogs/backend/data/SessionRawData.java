@@ -16,4 +16,52 @@ public class SessionRawData {
         this.y = y;
         this.z = z;
     }
+
+    public long[] getEpoc() {
+        return epoc;
+    }
+
+    public void setEpoc(long[] epoc) {
+        this.epoc = epoc;
+    }
+
+    public String[] getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String[] timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public float[] getElapsed() {
+        return elapsed;
+    }
+
+    public void setElapsed(float[] elapsed) {
+        this.elapsed = elapsed;
+    }
+
+    public float[] getX() {
+        return x;
+    }
+
+    public void setX(float[] x) {
+        this.x = x;
+    }
+
+    public float[] getY() {
+        return y;
+    }
+
+    public void setY(float[] y) {
+        this.y = y;
+    }
+
+    public float[] getZ() {
+        return z;
+    }
+
+    public void setZ(float[] z) {
+        this.z = z;
+    }
 }
