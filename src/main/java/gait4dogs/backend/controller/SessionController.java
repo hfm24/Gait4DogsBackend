@@ -24,7 +24,7 @@ public class SessionController {
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
-    public Document addSession(HttpEntity<String> httpEntity) throws IOException {
+    public Session addSession(HttpEntity<String> httpEntity) throws IOException {
         String json = httpEntity.getBody();
         ObjectMapper mapper = new ObjectMapper();
         JsonNode sessionObj = mapper.readTree(json);
@@ -33,55 +33,48 @@ public class SessionController {
         JsonNode dataObj = sessionObj.get("data");
 
         JsonNode epocArr = dataObj.get("epoc");
-        List<Long> epoc = new ArrayList<>();
+        long[] epoc = new long[epocArr.size()];
         for (int i = 0; i < epocArr.size(); i++) {
-            epoc.add(epocArr.get(i).longValue());
+            epoc[i] = epocArr.get(i).longValue();
         }
 
         JsonNode timestampArr = dataObj.get("timestamp");
-        List<String> timestamp = new ArrayList<>();
+        String[] timestamp = new String[timestampArr.size()];
         for (int i = 0; i < timestampArr.size(); i++) {
-            timestamp.add(timestampArr.get(i).textValue());
+            timestamp[i] = timestampArr.get(i).textValue();
         }
 
         JsonNode elapsedArr = dataObj.get("elapsed");
-        List<Float> elapsed = new ArrayList<>();
+        float[] elapsed = new float[elapsedArr.size()];
         for (int i = 0; i < elapsedArr.size(); i++) {
-            elapsed.add(elapsedArr.get(i).floatValue());
+            elapsed[i] = elapsedArr.get(i).floatValue();
         }
 
         JsonNode xArr = dataObj.get("x");
-        List<Float> x = new ArrayList<>();
+        float[] x = new float[xArr.size()];
         for (int i = 0; i < xArr.size(); i++) {
-            x.add(xArr.get(i).floatValue());
+            x[i] = xArr.get(i).floatValue();
         }
 
         JsonNode yArr = dataObj.get("y");
-        List<Float> y = new ArrayList<>();
+        float[] y = new float[yArr.size()];
         for (int i = 0; i < yArr.size(); i++) {
-            y.add(yArr.get(i).floatValue());
+            y[i] = yArr.get(i).floatValue();
         }
 
         JsonNode zArr = dataObj.get("z");
-        List<Float> z = new ArrayList<>();
+        float[] z = new float[zArr.size()];
         for (int i = 0; i < zArr.size(); i++) {
-            z.add(zArr.get(i).floatValue());
+            z[i] = zArr.get(i).floatValue();
         }
 
-        Document rawDataDoc = new Document("epoc", epoc)
-                .append("timestamp", timestamp)
-                .append("elapsed", elapsed)
-                .append("x", x)
-                .append("y", y)
-                .append("z", z);
-        Document SessionDoc = new Document("id", counter.incrementAndGet())
-                .append("dogId", dogId)
-                .append("data", rawDataDoc)
-                .append("notes", notes);
-        MongoCollection<Document> dogs = BackendApplication.db.getCollection("Sessions");
-        dogs.insertOne(SessionDoc);
+        SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
+        Session session = new Session(counter.incrementAndGet(), dogId, rawData, notes);
 
-        return SessionDoc;
+        MongoCollection<Document> sessions = BackendApplication.db.getCollection("Sessions");
+        sessions.insertOne(session.toDocument());
+
+        return session;
     }
 
     @RequestMapping("/session/get")

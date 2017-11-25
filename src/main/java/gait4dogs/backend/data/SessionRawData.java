@@ -1,8 +1,11 @@
 package gait4dogs.backend.data;
 
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.bson.Document;
 
-@Document
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class SessionRawData {
     private long[] epoc;
     private String[] timestamp;
@@ -66,5 +69,30 @@ public class SessionRawData {
 
     public void setZ(float[] z) {
         this.z = z;
+    }
+
+    public Document toDocument() {
+        List<Long> epocList = new ArrayList<>();
+        List<String> timestampList = new ArrayList<>();
+        List<Float> elapsedList = new ArrayList<>();
+        List<Float> xList = new ArrayList<>();
+        List<Float> yList = new ArrayList<>();
+        List<Float> zList = new ArrayList<>();
+        for (int i = 0; i < epoc.length; i++) {
+            epocList.add(epoc[i]);
+            timestampList.add(timestamp[i]);
+            elapsedList.add(elapsed[i]);
+            xList.add(x[i]);
+            yList.add(y[i]);
+            zList.add(z[i]);
+        }
+        Document doc = new Document("epoc", epocList)
+                .append("timestamp", timestampList)
+                .append("elapsed", elapsedList)
+                .append("x", xList)
+                .append("y", yList)
+                .append("z", zList);
+
+        return doc;
     }
 }
