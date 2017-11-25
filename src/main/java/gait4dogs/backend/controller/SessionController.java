@@ -2,24 +2,27 @@ package gait4dogs.backend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.client.MongoCollection;
-import gait4dogs.backend.BackendApplication;
+import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.Session;
 import gait4dogs.backend.data.SessionAnalytics;
 import gait4dogs.backend.data.SessionRawData;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static com.mongodb.client.model.Filters.eq;
 
 @RestController
 public class SessionController {
 
+    @Autowired
+    private MongoDatabase db;
     private final AtomicLong counter = new AtomicLong();
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -71,15 +74,20 @@ public class SessionController {
         SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
         Session session = new Session(counter.incrementAndGet(), dogId, rawData, notes);
 
-        MongoCollection<Document> sessions = BackendApplication.db.getCollection("Sessions");
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
         sessions.insertOne(session.toDocument());
 
         return session;
     }
 
-    @RequestMapping("/session/get")
-    public Session getSession(@RequestParam(value="id", defaultValue = "0") String id){
-        return new Session(0, 5, null, "This is a test");
+    @RequestMapping(value="/session/get", method= RequestMethod.GET)
+    public Session getSession(@RequestParam(value="id", defaultValue = "0") long id){
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        Document doc = sessions.find(eq("id", id)).first();
+        if (doc == null) {
+            return null;
+        }
+        return toSession(doc);
     }
 
     @RequestMapping("/sessionAnalytics/add")
@@ -90,5 +98,37 @@ public class SessionController {
     @RequestMapping("/sessionAnalytics/get")
     public SessionAnalytics getSessionAnalytics(@RequestParam(value="id", defaultValue = "0") long id){
         return new SessionAnalytics(id);
+    }
+
+    private Session toSession(Document doc) {
+        long id = doc.getLong("id");
+        long dogId = doc.getLong("dogId");
+        String notes = doc.getString("notes");
+
+        Document data = (Document)doc.get("data");
+        List<Long> epocList = (List<Long>)data.get("epoc");
+        List<String> timeStampList = (List<String>)data.get("timestamp");
+        List<Double> elapsedList = (List<Double>)data.get("elapsed");
+        List<Double> xList = (List<Double>)data.get("x");
+        List<Double> yList = (List<Double>)data.get("y");
+        List<Double> zList = (List<Double>)data.get("z");
+
+        long[] epoc = new long[epocList.size()];
+        String[] timestamp = new String[timeStampList.size()];
+        float[] elapsed = new float[elapsedList.size()];
+        float[] x = new float[xList.size()];
+        float[] y = new float[yList.size()];
+        float[] z = new float[zList.size()];
+
+        for (int i = 0; i < epoc.length; i++) {
+            epoc[i] = epocList.get(i);
+            timestamp[i] = timeStampList.get(i);
+            elapsed[i] = elapsedList.get(i).floatValue();
+            x[i] = xList.get(i).floatValue();
+            y[i] = yList.get(i).floatValue();
+            z[i] = zList.get(i).floatValue();
+        }
+        SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
+        return new Session(id, dogId, rawData, notes);
     }
 }
