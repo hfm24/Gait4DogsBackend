@@ -79,25 +79,6 @@ public class SessionController {
         }
 
 
-        List<float[]> axisData = new ArrayList<float[]>();
-        axisData.add(x);
-        axisData.add(y);
-        axisData.add(z);
-
-        float[] minimums = new float[3];
-        for(int j = 0; j < 3; j++) {
-            float curr = 0;
-            float near = axisData.get(j)[0];
-            for (int i = 0; i < x.length; i++) {
-                curr = axisData.get(j)[i] * axisData.get(j)[i];
-                if (curr <= (near * near)) {
-                    near = axisData.get(j)[i];
-                }
-            }
-            minimums[j] = near;
-        }
-
-
         SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
         Session session = new Session(counter.incrementAndGet(), dogId, rawData, notes);
 
