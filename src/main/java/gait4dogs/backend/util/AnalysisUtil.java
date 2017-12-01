@@ -77,7 +77,7 @@ public class AnalysisUtil {
 
         float[] magnitudes = new float[rawData.getX().length];
         for(int i = 0; i < rawData.getX().length - 1; i++){
-            magnitudes[i] = (float) Math.sqrt((rawData.getX()[i]) * rawData.getX()[i]) + (rawData.getY()[i] * rawData.getY()[i]) + (rawData.getZ()[i] * rawData.getZ()[i]);
+            magnitudes[i] = (float) Math.sqrt((rawData.getX()[i] * rawData.getX()[i]) + (rawData.getY()[i] * rawData.getY()[i]) + (rawData.getZ()[i] * rawData.getZ()[i]));
         }
 
         Arrays.sort(magnitudes);
