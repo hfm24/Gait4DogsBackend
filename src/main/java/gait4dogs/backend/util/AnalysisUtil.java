@@ -5,13 +5,14 @@ import gait4dogs.backend.data.SessionRawData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AnalysisUtil {
     public AnalysisUtil() {
 
     }
 
-    public SessionAnalytics doSessionAnalysis(SessionRawData rawData, long sessionId) {
+    public SessionAnalytics doSessionAnalysis(SessionRawData rawData, long sessionId, AtomicLong counter) {
 
         List<float[]> axisData = new ArrayList<float[]>();
         axisData.add(rawData.getX());
@@ -31,6 +32,6 @@ public class AnalysisUtil {
             minimums[j] = near;
         }
 
-        return new SessionAnalytics(sessionId);
+        return new SessionAnalytics(counter.incrementAndGet(), sessionId, minimums);
     }
 }

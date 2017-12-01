@@ -3,9 +3,12 @@ package gait4dogs.backend.data;
 public class SessionAnalytics {
     private long sessionId;
     private long id;
+    private float[] minimums;
 
-    public SessionAnalytics(long sessionId) {
+    public SessionAnalytics(long id, long sessionId, float[] minimums) {
+        this.id = id;
         this.sessionId = sessionId;
+        this.minimums = minimums;
     }
 
     public long getSessionId() {
@@ -14,5 +17,9 @@ public class SessionAnalytics {
 
     public long getId() {
         return id;
+    }
+
+    public float[] getMinimums() {
+        return minimums;
     }
 }

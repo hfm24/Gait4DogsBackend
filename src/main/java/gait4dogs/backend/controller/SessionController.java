@@ -29,6 +29,7 @@ public class SessionController {
     private AnalysisUtil analysisUtil;
 
     private final AtomicLong counter = new AtomicLong();
+    private final AtomicLong analyticsCounter = new AtomicLong();
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
@@ -85,7 +86,7 @@ public class SessionController {
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         sessions.insertOne(session.toDocument());
 
-        analysisUtil.doSessionAnalysis(rawData, session.getId());
+        SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData, session.getId());
 
         return session;
     }
@@ -103,12 +104,17 @@ public class SessionController {
     @RequestMapping("/sessionAnalytics/add")
     public SessionAnalytics addSessionAnalytics(){
 
-        return new SessionAnalytics(counter.incrementAndGet());
+        return null;
     }
 
     @RequestMapping("/sessionAnalytics/get")
     public SessionAnalytics getSessionAnalytics(@RequestParam(value="id", defaultValue = "0") long id){
-        return new SessionAnalytics(id);
+        MongoCollection<Document> sessionAnalytics = db.getCollection("SessionAnalytics");
+        Document doc = sessionAnalytics.find(eq("id", id)).first();
+        if (doc == null) {
+            return null;
+        }
+        return toSessionAnalytics(doc);
     }
 
     private Session toSession(Document doc) {
@@ -141,5 +147,16 @@ public class SessionController {
         }
         SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
         return new Session(id, dogId, rawData, notes);
+    }
+
+    private SessionAnalytics toSessionAnalytics(Document doc) {
+        long id = doc.getLong("id");
+        long sessionId = doc.getLong("sessionId");
+        List<Double> minList = (List<Double>)doc.get("minimums");
+        float[] minimums = new float[minList.size()];
+        for (int i = 0; i < minimums.length; i++) {
+            minimums[i] = minList.get(i).floatValue();
+        }
+        return new SessionAnalytics(id, sessionId, minimums);
     }
 }
