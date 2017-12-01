@@ -81,6 +81,7 @@ public class AnalysisUtil {
         }
 
         Arrays.sort(magnitudes);
+
         maxMagnitude = magnitudes[magnitudes.length-1];
         minMagnitude = magnitudes[0];
         rangeMagnitude = maxMagnitude - minMagnitude;
