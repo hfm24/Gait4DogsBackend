@@ -13,7 +13,7 @@ public class AnalysisUtil {
 
     }
 
-    public SessionAnalytics doSessionAnalysis(SessionRawData rawData, long sessionId) {
+    public SessionAnalytics doSessionAnalysis(SessionRawData rawData) {
 
 
         //Finding the minimums
@@ -86,6 +86,6 @@ public class AnalysisUtil {
         minMagnitude = magnitudes[0];
         rangeMagnitude = maxMagnitude - minMagnitude;
 
-        return new SessionAnalytics(sessionId);
+        return new SessionAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
     }
 }

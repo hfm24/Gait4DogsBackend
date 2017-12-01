@@ -29,6 +29,7 @@ public class SessionController {
     private AnalysisUtil analysisUtil;
 
     private final AtomicLong counter = new AtomicLong();
+    private final AtomicLong analyticsCounter = new AtomicLong();
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
@@ -80,12 +81,11 @@ public class SessionController {
 
 
         SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
-        Session session = new Session(counter.incrementAndGet(), dogId, rawData, notes);
+        SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
+        Session session = new Session(counter.incrementAndGet(), dogId, rawData, sessionAnalytics, notes);
 
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         sessions.insertOne(session.toDocument());
-
-        analysisUtil.doSessionAnalysis(rawData, session.getId());
 
         return session;
     }
@@ -103,12 +103,17 @@ public class SessionController {
     @RequestMapping("/sessionAnalytics/add")
     public SessionAnalytics addSessionAnalytics(){
 
-        return new SessionAnalytics(counter.incrementAndGet());
+        return null;
     }
 
     @RequestMapping("/sessionAnalytics/get")
     public SessionAnalytics getSessionAnalytics(@RequestParam(value="id", defaultValue = "0") long id){
-        return new SessionAnalytics(id);
+        MongoCollection<Document> sessionAnalytics = db.getCollection("SessionAnalytics");
+        Document doc = sessionAnalytics.find(eq("id", id)).first();
+        if (doc == null) {
+            return null;
+        }
+        return toSessionAnalytics(doc);
     }
 
     private Session toSession(Document doc) {
@@ -117,12 +122,21 @@ public class SessionController {
         String notes = doc.getString("notes");
 
         Document data = (Document)doc.get("data");
-        List<Long> epocList = (List<Long>)data.get("epoc");
-        List<String> timeStampList = (List<String>)data.get("timestamp");
-        List<Double> elapsedList = (List<Double>)data.get("elapsed");
-        List<Double> xList = (List<Double>)data.get("x");
-        List<Double> yList = (List<Double>)data.get("y");
-        List<Double> zList = (List<Double>)data.get("z");
+        SessionRawData rawData = toSessionRawData(data);
+
+        Document analytics = (Document)doc.get("analytics");
+        SessionAnalytics sessionAnalytics = toSessionAnalytics(analytics);
+
+        return new Session(id, dogId, rawData, sessionAnalytics, notes);
+    }
+
+    private SessionRawData toSessionRawData(Document doc) {
+        List<Long> epocList = (List<Long>)doc.get("epoc");
+        List<String> timeStampList = (List<String>)doc.get("timestamp");
+        List<Double> elapsedList = (List<Double>)doc.get("elapsed");
+        List<Double> xList = (List<Double>)doc.get("x");
+        List<Double> yList = (List<Double>)doc.get("y");
+        List<Double> zList = (List<Double>)doc.get("z");
 
         long[] epoc = new long[epocList.size()];
         String[] timestamp = new String[timeStampList.size()];
@@ -139,7 +153,24 @@ public class SessionController {
             y[i] = yList.get(i).floatValue();
             z[i] = zList.get(i).floatValue();
         }
-        SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
-        return new Session(id, dogId, rawData, notes);
+        return new SessionRawData(epoc, timestamp, elapsed, x, y, z);
+    }
+
+    private SessionAnalytics toSessionAnalytics(Document doc) {
+        List<Double> minList = (List<Double>)doc.get("minimums");
+        List<Double> maxList = (List<Double>)doc.get("maximums");
+        List<Double> rangesList = (List<Double>)doc.get("ranges");
+        float[] minimums = new float[minList.size()];
+        float[] maximums = new float[maxList.size()];
+        float[] ranges = new float[rangesList.size()];
+        for (int i = 0; i < minimums.length; i++) {
+            minimums[i] = minList.get(i).floatValue();
+            maximums[i] = maxList.get(i).floatValue();
+            ranges[i] = rangesList.get(i).floatValue();
+        }
+        float minMagnitude = doc.getDouble("minMagnitude").floatValue();
+        float maxMagnitude = doc.getDouble("maxMagnitude").floatValue();
+        float rangeMagnitude = doc.getDouble("rangeMagnitude").floatValue();
+        return new SessionAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
     }
 }
