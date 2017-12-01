@@ -4,6 +4,8 @@ import gait4dogs.backend.data.SessionAnalytics;
 import gait4dogs.backend.data.SessionRawData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,6 +34,37 @@ public class AnalysisUtil {
             minimums[j] = near;
         }
 
-        return new SessionAnalytics(counter.incrementAndGet(), sessionId, minimums);
+
+        float[] maximums = new float[3];
+        Arrays.sort(rawData.getX());
+        Arrays.sort(rawData.getY());
+        Arrays.sort(rawData.getZ());
+
+        if(Math.abs(rawData.getX()[0]) > rawData.getX()[rawData.getX().length-1]){
+            maximums[0] = rawData.getX()[0];
+        }
+        else
+            maximums[0] = rawData.getX()[rawData.getX().length-1];
+
+        if(Math.abs(rawData.getY()[0]) > rawData.getY()[rawData.getY().length-1]){
+            maximums[1] = rawData.getY()[0];
+        }
+        else
+            maximums[1] = rawData.getY()[rawData.getY().length-1];
+
+
+        if(Math.abs(rawData.getZ()[0]) > rawData.getZ()[rawData.getZ().length-1]){
+            maximums[2] = rawData.getZ()[0];
+        }
+        else
+            maximums[2] = rawData.getZ()[rawData.getZ().length-1];
+
+
+        float[] ranges = new float[3];
+        ranges[0] = maximums[0] - minimums[0];
+        ranges[1] = maximums[1] - minimums[1];
+        ranges[2] = maximums[2] - minimums[2];
+
+        return new SessionAnalytics(sessionId);
     }
 }
