@@ -92,6 +92,7 @@ public class SessionController {
 
     @RequestMapping("/sessionAnalytics/add")
     public SessionAnalytics addSessionAnalytics(){
+
         return new SessionAnalytics(counter.incrementAndGet());
     }
 
