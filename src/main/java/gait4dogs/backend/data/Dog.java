@@ -1,5 +1,7 @@
 package gait4dogs.backend.data;
 
+import org.bson.Document;
+
 import java.util.Date;
 
 public class Dog {
@@ -62,5 +64,15 @@ public class Dog {
 
     public void setBirthDate(String birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public Document toDocument() {
+        Document doc = new Document("id", id)
+                .append("name", name)
+                .append("height", height)
+                .append("weight", weight)
+                .append("breed", breed)
+                .append("birthDate", birthDate);
+        return doc;
     }
 }

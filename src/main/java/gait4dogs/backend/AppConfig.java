@@ -3,6 +3,7 @@ package gait4dogs.backend;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import gait4dogs.backend.util.AnalysisUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,5 +19,10 @@ public class AppConfig {
         MongoClient client = new MongoClient(uri);
         MongoDatabase db = client.getDatabase(uri.getDatabase());
         return db;
+    }
+
+    public @Bean
+    AnalysisUtil analysisUtil() {
+        return new AnalysisUtil();
     }
 }

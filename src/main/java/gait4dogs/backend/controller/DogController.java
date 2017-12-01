@@ -6,14 +6,21 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.Dog;
 import gait4dogs.backend.data.DogAnalytics;
+import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 public class DogController {
+
+    @Autowired
+    MongoDatabase db;
 
     private final AtomicLong counter = new AtomicLong();
 
@@ -29,7 +36,12 @@ public class DogController {
         int weight = dogObj.get("weight").intValue();
         String breed = dogObj.get("breed").textValue();
         String birthDate = dogObj.get("birthDate").textValue();
-        return new Dog(name, height, weight, breed, birthDate, counter.incrementAndGet());
+        Dog dog = new Dog(name, height, weight, breed, birthDate, counter.incrementAndGet());
+
+        MongoCollection<Document> dogs = db.getCollection("Dogs");
+        dogs.insertOne(dog.toDocument());
+
+        return dog;
     }
 
     @RequestMapping("/dog/get")

@@ -7,6 +7,7 @@ import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.Session;
 import gait4dogs.backend.data.SessionAnalytics;
 import gait4dogs.backend.data.SessionRawData;
+import gait4dogs.backend.util.AnalysisUtil;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -24,6 +25,9 @@ public class SessionController {
 
     @Autowired
     private MongoDatabase db;
+    @Autowired
+    private AnalysisUtil analysisUtil;
+
     private final AtomicLong counter = new AtomicLong();
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -100,6 +104,8 @@ public class SessionController {
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         sessions.insertOne(session.toDocument());
 
+        analysisUtil.doSessionAnalysis(rawData, session.getId());
+
         return session;
     }
 
@@ -115,6 +121,7 @@ public class SessionController {
 
     @RequestMapping("/sessionAnalytics/add")
     public SessionAnalytics addSessionAnalytics(){
+
         return new SessionAnalytics(counter.incrementAndGet());
     }
 
