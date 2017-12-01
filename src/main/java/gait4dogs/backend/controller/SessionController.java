@@ -81,12 +81,11 @@ public class SessionController {
 
 
         SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
-        Session session = new Session(counter.incrementAndGet(), dogId, rawData, notes);
+        SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
+        Session session = new Session(counter.incrementAndGet(), dogId, rawData, sessionAnalytics, notes);
 
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         sessions.insertOne(session.toDocument());
-
-        SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData, session.getId());
 
         return session;
     }
@@ -123,12 +122,21 @@ public class SessionController {
         String notes = doc.getString("notes");
 
         Document data = (Document)doc.get("data");
-        List<Long> epocList = (List<Long>)data.get("epoc");
-        List<String> timeStampList = (List<String>)data.get("timestamp");
-        List<Double> elapsedList = (List<Double>)data.get("elapsed");
-        List<Double> xList = (List<Double>)data.get("x");
-        List<Double> yList = (List<Double>)data.get("y");
-        List<Double> zList = (List<Double>)data.get("z");
+        SessionRawData rawData = toSessionRawData(data);
+
+        Document analytics = (Document)doc.get("analytics");
+        SessionAnalytics sessionAnalytics = toSessionAnalytics(analytics);
+
+        return new Session(id, dogId, rawData, sessionAnalytics, notes);
+    }
+
+    private SessionRawData toSessionRawData(Document doc) {
+        List<Long> epocList = (List<Long>)doc.get("epoc");
+        List<String> timeStampList = (List<String>)doc.get("timestamp");
+        List<Double> elapsedList = (List<Double>)doc.get("elapsed");
+        List<Double> xList = (List<Double>)doc.get("x");
+        List<Double> yList = (List<Double>)doc.get("y");
+        List<Double> zList = (List<Double>)doc.get("z");
 
         long[] epoc = new long[epocList.size()];
         String[] timestamp = new String[timeStampList.size()];
@@ -145,18 +153,20 @@ public class SessionController {
             y[i] = yList.get(i).floatValue();
             z[i] = zList.get(i).floatValue();
         }
-        SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
-        return new Session(id, dogId, rawData, notes);
+        return new SessionRawData(epoc, timestamp, elapsed, x, y, z);
     }
 
     private SessionAnalytics toSessionAnalytics(Document doc) {
         long id = doc.getLong("id");
         long sessionId = doc.getLong("sessionId");
         List<Double> minList = (List<Double>)doc.get("minimums");
+        List<Double> maxList = (List<Double>)doc.get("maximums");
         float[] minimums = new float[minList.size()];
+        float[] maximums = new float[maxList.size()];
         for (int i = 0; i < minimums.length; i++) {
             minimums[i] = minList.get(i).floatValue();
+            maximums[i] = maxList.get(i).floatValue();
         }
-        return new SessionAnalytics(id, sessionId, minimums);
+        return new SessionAnalytics(minimums, maximums);
     }
 }

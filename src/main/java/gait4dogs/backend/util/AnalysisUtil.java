@@ -14,7 +14,7 @@ public class AnalysisUtil {
 
     }
 
-    public SessionAnalytics doSessionAnalysis(SessionRawData rawData, long sessionId, AtomicLong counter) {
+    public SessionAnalytics doSessionAnalysis(SessionRawData rawData) {
 
         List<float[]> axisData = new ArrayList<float[]>();
         axisData.add(rawData.getX());
@@ -65,6 +65,6 @@ public class AnalysisUtil {
         ranges[1] = maximums[1] - minimums[1];
         ranges[2] = maximums[2] - minimums[2];
 
-        return new SessionAnalytics(sessionId);
+        return new SessionAnalytics(minimums, maximums);
     }
 }
