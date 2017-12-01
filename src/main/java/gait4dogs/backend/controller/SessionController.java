@@ -157,16 +157,20 @@ public class SessionController {
     }
 
     private SessionAnalytics toSessionAnalytics(Document doc) {
-        long id = doc.getLong("id");
-        long sessionId = doc.getLong("sessionId");
         List<Double> minList = (List<Double>)doc.get("minimums");
         List<Double> maxList = (List<Double>)doc.get("maximums");
+        List<Double> rangesList = (List<Double>)doc.get("ranges");
         float[] minimums = new float[minList.size()];
         float[] maximums = new float[maxList.size()];
+        float[] ranges = new float[rangesList.size()];
         for (int i = 0; i < minimums.length; i++) {
             minimums[i] = minList.get(i).floatValue();
             maximums[i] = maxList.get(i).floatValue();
+            ranges[i] = rangesList.get(i).floatValue();
         }
-        return new SessionAnalytics(minimums, maximums);
+        float minMagnitude = doc.getDouble("minMagnitude").floatValue();
+        float maxMagnitude = doc.getDouble("maxMagnitude").floatValue();
+        float rangeMagnitude = doc.getDouble("rangeMagnitude").floatValue();
+        return new SessionAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
     }
 }

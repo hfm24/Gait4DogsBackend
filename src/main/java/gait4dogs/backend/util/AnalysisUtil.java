@@ -85,6 +85,6 @@ public class AnalysisUtil {
         minMagnitude = magnitudes[0];
         rangeMagnitude = maxMagnitude - minMagnitude;
 
-        return new SessionAnalytics(minimums, maximums);
+        return new SessionAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
     }
 }
