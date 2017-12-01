@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class AnalysisUtil {
     public AnalysisUtil() {
@@ -15,6 +14,9 @@ public class AnalysisUtil {
     }
 
     public SessionAnalytics doSessionAnalysis(SessionRawData rawData) {
+
+
+        //Finding the minimums
 
         List<float[]> axisData = new ArrayList<float[]>();
         axisData.add(rawData.getX());
@@ -35,6 +37,7 @@ public class AnalysisUtil {
         }
 
 
+        //Finding the Maximum Acceleration Values
         float[] maximums = new float[3];
         Arrays.sort(rawData.getX());
         Arrays.sort(rawData.getY());
@@ -64,6 +67,23 @@ public class AnalysisUtil {
         ranges[0] = maximums[0] - minimums[0];
         ranges[1] = maximums[1] - minimums[1];
         ranges[2] = maximums[2] - minimums[2];
+
+
+
+        //Finding the Magnitude
+        float maxMagnitude;
+        float minMagnitude;
+        float rangeMagnitude;
+
+        float[] magnitudes = new float[rawData.getX().length];
+        for(int i = 0; i < rawData.getX().length - 1; i++){
+            magnitudes[i] = (float) Math.sqrt((rawData.getX()[i]) * rawData.getX()[i]) + (rawData.getY()[i] * rawData.getY()[i]) + (rawData.getZ()[i] * rawData.getZ()[i]);
+        }
+
+        Arrays.sort(magnitudes);
+        maxMagnitude = magnitudes[magnitudes.length-1];
+        minMagnitude = magnitudes[0];
+        rangeMagnitude = maxMagnitude - minMagnitude;
 
         return new SessionAnalytics(minimums, maximums);
     }
