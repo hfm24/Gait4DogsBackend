@@ -76,14 +76,22 @@ public class AnalysisUtil {
         float rangeMagnitude;
 
         float[] magnitudes = new float[rawData.getX().length];
-        for(int i = 0; i < rawData.getX().length - 1; i++){
+        for(int i = 0; i < rawData.getX().length ; i++){
             magnitudes[i] = (float) Math.sqrt((rawData.getX()[i] * rawData.getX()[i]) + (rawData.getY()[i] * rawData.getY()[i]) + (rawData.getZ()[i] * rawData.getZ()[i]));
         }
 
-        Arrays.sort(magnitudes);
-
-        maxMagnitude = magnitudes[magnitudes.length-1];
+        maxMagnitude = magnitudes[0];
         minMagnitude = magnitudes[0];
+
+        for(int i = 0; i < magnitudes.length ; i++){
+            if(maxMagnitude < magnitudes[i]){
+                maxMagnitude = magnitudes[i];
+            }
+            if(minMagnitude > magnitudes[i]){
+                minMagnitude = magnitudes[i];
+            }
+        }
+
         rangeMagnitude = maxMagnitude - minMagnitude;
 
         return new SessionAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
