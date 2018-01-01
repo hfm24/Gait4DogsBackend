@@ -6,61 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SessionAnalytics {
-    private float[] minimums;
-    private float[] maximums;
-    private float[] ranges;
-    private float minMagnitude, maxMagnitude, rangeMagnitude;
+    private List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics;
 
-    public SessionAnalytics(float[] minimums, float[] maximums, float[] ranges, float minMagnitude, float maxMagnitude, float rangeMagnitude) {
-        this.minimums = minimums;
-        this.maximums = maximums;
-        this.ranges = ranges;
-        this.minMagnitude = minMagnitude;
-        this.maxMagnitude = maxMagnitude;
-        this.rangeMagnitude = rangeMagnitude;
+    public SessionAnalytics(List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics) {
+        this.accelerometerOutputAnalytics = accelerometerOutputAnalytics;
     }
 
-    public float[] getMinimums() {
-        return minimums;
-    }
-
-    public float[] getMaximums() {
-        return maximums;
-    }
-
-    public float[] getRanges() {
-        return ranges;
-    }
-
-    public float getMinMagnitude() {
-        return minMagnitude;
-    }
-
-    public float getMaxMagnitude(){
-        return maxMagnitude;
-    }
-
-    public float getRangeMagnitude() {
-        return rangeMagnitude;
+    public List<AccelerometerOutputAnalytics> getAccelerometerOutputAnalytics() {
+        return accelerometerOutputAnalytics;
     }
 
     public Document toDocument() {
-        List<Float> minList = new ArrayList<>();
-        List<Float> maxList = new ArrayList<>();
-        List<Float> rangeList = new ArrayList<>();
-        for (int i = 0; i < minimums.length; i++) {
-            minList.add(minimums[i]);
-            maxList.add(maximums[i]);
-            rangeList.add(ranges[i]);
+        List<Document> accelOutAnalyticsDoc = new ArrayList<>();
+        for (AccelerometerOutputAnalytics accelOutAnalytics : accelerometerOutputAnalytics) {
+            accelOutAnalyticsDoc.add(accelOutAnalytics.toDocument());
         }
-
-
-        Document doc = new Document("minimums", minList)
-                .append("maximums", maxList)
-                .append("ranges", rangeList)
-                .append("minMagnitude", minMagnitude)
-                .append("maxMagnitude", maxMagnitude)
-                .append("rangeMagnitude", rangeMagnitude);
+        Document doc = new Document("accelerometerOutputAnalytics", accelOutAnalyticsDoc);
 
         return doc;
     }

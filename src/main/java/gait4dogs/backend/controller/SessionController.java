@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import gait4dogs.backend.data.Session;
-import gait4dogs.backend.data.SessionAnalytics;
-import gait4dogs.backend.data.SessionRawData;
+import gait4dogs.backend.data.*;
 import gait4dogs.backend.util.AnalysisUtil;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,46 +39,49 @@ public class SessionController {
         JsonNode sessionObj = mapper.readTree(json);
         Long dogId = sessionObj.get("dogId").longValue();
         String notes = sessionObj.get("notes").textValue();
-        JsonNode dataObj = sessionObj.get("data");
+        List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
+        JsonNode accelOutputs = sessionObj.get("data");
+        for (JsonNode dataObj : accelOutputs) {
+            JsonNode epocArr = dataObj.get("epoc");
+            long[] epoc = new long[epocArr.size()];
+            for (int i = 0; i < epocArr.size(); i++) {
+                epoc[i] = epocArr.get(i).longValue();
+            }
 
-        JsonNode epocArr = dataObj.get("epoc");
-        long[] epoc = new long[epocArr.size()];
-        for (int i = 0; i < epocArr.size(); i++) {
-            epoc[i] = epocArr.get(i).longValue();
+            JsonNode timestampArr = dataObj.get("timestamp");
+            String[] timestamp = new String[timestampArr.size()];
+            for (int i = 0; i < timestampArr.size(); i++) {
+                timestamp[i] = timestampArr.get(i).textValue();
+            }
+
+            JsonNode elapsedArr = dataObj.get("elapsed");
+            float[] elapsed = new float[elapsedArr.size()];
+            for (int i = 0; i < elapsedArr.size(); i++) {
+                elapsed[i] = elapsedArr.get(i).floatValue();
+            }
+
+            JsonNode xArr = dataObj.get("x");
+            float[] x = new float[xArr.size()];
+            for (int i = 0; i < xArr.size(); i++) {
+                x[i] = xArr.get(i).floatValue();
+            }
+
+            JsonNode yArr = dataObj.get("y");
+            float[] y = new float[yArr.size()];
+            for (int i = 0; i < yArr.size(); i++) {
+                y[i] = yArr.get(i).floatValue();
+            }
+
+            JsonNode zArr = dataObj.get("z");
+            float[] z = new float[zArr.size()];
+            for (int i = 0; i < zArr.size(); i++) {
+                z[i] = zArr.get(i).floatValue();
+            }
+            AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z);
+            accelerometerOutputs.add(accelerometerOutput);
         }
 
-        JsonNode timestampArr = dataObj.get("timestamp");
-        String[] timestamp = new String[timestampArr.size()];
-        for (int i = 0; i < timestampArr.size(); i++) {
-            timestamp[i] = timestampArr.get(i).textValue();
-        }
-
-        JsonNode elapsedArr = dataObj.get("elapsed");
-        float[] elapsed = new float[elapsedArr.size()];
-        for (int i = 0; i < elapsedArr.size(); i++) {
-            elapsed[i] = elapsedArr.get(i).floatValue();
-        }
-
-        JsonNode xArr = dataObj.get("x");
-        float[] x = new float[xArr.size()];
-        for (int i = 0; i < xArr.size(); i++) {
-            x[i] = xArr.get(i).floatValue();
-        }
-
-        JsonNode yArr = dataObj.get("y");
-        float[] y = new float[yArr.size()];
-        for (int i = 0; i < yArr.size(); i++) {
-            y[i] = yArr.get(i).floatValue();
-        }
-
-        JsonNode zArr = dataObj.get("z");
-        float[] z = new float[zArr.size()];
-        for (int i = 0; i < zArr.size(); i++) {
-            z[i] = zArr.get(i).floatValue();
-        }
-
-
-        SessionRawData rawData = new SessionRawData(epoc, timestamp, elapsed, x, y, z);
+        SessionRawData rawData = new SessionRawData(accelerometerOutputs);
         SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
         Session session = new Session(counter.incrementAndGet(), dogId, rawData, sessionAnalytics, notes);
 
@@ -121,7 +122,7 @@ public class SessionController {
         long dogId = doc.getLong("dogId");
         String notes = doc.getString("notes");
 
-        Document data = (Document)doc.get("data");
+        Document data = (Document)doc.get("rawData");
         SessionRawData rawData = toSessionRawData(data);
 
         Document analytics = (Document)doc.get("analytics");
@@ -130,7 +131,7 @@ public class SessionController {
         return new Session(id, dogId, rawData, sessionAnalytics, notes);
     }
 
-    private SessionRawData toSessionRawData(Document doc) {
+    private AccelerometerOutput toAccelerometerOutput(Document doc) {
         List<Long> epocList = (List<Long>)doc.get("epoc");
         List<String> timeStampList = (List<String>)doc.get("timestamp");
         List<Double> elapsedList = (List<Double>)doc.get("elapsed");
@@ -153,10 +154,19 @@ public class SessionController {
             y[i] = yList.get(i).floatValue();
             z[i] = zList.get(i).floatValue();
         }
-        return new SessionRawData(epoc, timestamp, elapsed, x, y, z);
+        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z);
     }
 
-    private SessionAnalytics toSessionAnalytics(Document doc) {
+    private SessionRawData toSessionRawData(Document doc) {
+        List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
+        for (Document accelerometerOutputDoc : (List<Document>)doc) {
+            accelerometerOutputs.add(toAccelerometerOutput(accelerometerOutputDoc));
+        }
+        SessionRawData rawData = new SessionRawData(accelerometerOutputs);
+        return rawData;
+    }
+
+    private AccelerometerOutputAnalytics toAccelerometerOuptutAnalytics(Document doc) {
         List<Double> minList = (List<Double>)doc.get("minimums");
         List<Double> maxList = (List<Double>)doc.get("maximums");
         List<Double> rangesList = (List<Double>)doc.get("ranges");
@@ -171,6 +181,14 @@ public class SessionController {
         float minMagnitude = doc.getDouble("minMagnitude").floatValue();
         float maxMagnitude = doc.getDouble("maxMagnitude").floatValue();
         float rangeMagnitude = doc.getDouble("rangeMagnitude").floatValue();
-        return new SessionAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
+        return new AccelerometerOutputAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
+    }
+
+    private SessionAnalytics toSessionAnalytics(Document doc) {
+        List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics = new ArrayList<>();
+        for (Document accelOutputAnalyticsDoc : (List<Document>)doc) {
+            accelerometerOutputAnalytics.add(toAccelerometerOuptutAnalytics(accelOutputAnalyticsDoc));
+        }
+        return new SessionAnalytics(accelerometerOutputAnalytics);
     }
 }

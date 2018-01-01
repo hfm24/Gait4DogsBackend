@@ -2,6 +2,9 @@ package gait4dogs.backend.data;
 
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Session {
     private long id;
     private long dogId;
