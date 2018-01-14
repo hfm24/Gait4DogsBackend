@@ -101,6 +101,17 @@ public class SessionController {
         return toSession(doc);
     }
 
+    @RequestMapping(value="session/getRawData", method=RequestMethod.GET)
+    public SessionRawData getSessionRawData(@RequestParam(value="id", defaultValue = "0") long id) {
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        Document doc = sessions.find(eq("id", id)).first();
+        if (doc == null) {
+            return null;
+        }
+        Session sessionData = toSession(doc);
+        return sessionData.getRawData();
+    }
+
     @RequestMapping("/sessionAnalytics/add")
     public SessionAnalytics addSessionAnalytics(){
 
