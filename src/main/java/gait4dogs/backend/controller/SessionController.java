@@ -2,11 +2,13 @@ package gait4dogs.backend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.*;
 import gait4dogs.backend.util.AnalysisUtil;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +28,6 @@ public class SessionController {
     @Autowired
     private AnalysisUtil analysisUtil;
 
-    private final AtomicLong counter = new AtomicLong();
-    private final AtomicLong analyticsCounter = new AtomicLong();
-
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
     public Session addSession(HttpEntity<String> httpEntity) throws IOException {
@@ -41,6 +40,7 @@ public class SessionController {
         String notes = sessionObj.get("notes").textValue();
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
         JsonNode accelOutputs = sessionObj.get("data");
+        // Get acceleration data
         for (JsonNode dataObj : accelOutputs) {
             JsonNode epocArr = dataObj.get("epoc");
             long[] epoc = new long[epocArr.size()];
@@ -83,18 +83,25 @@ public class SessionController {
 
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
         SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
-        Session session = new Session(counter.incrementAndGet(), dogId, rawData, sessionAnalytics, notes);
-
         MongoCollection<Document> sessions = db.getCollection("Sessions");
+        BasicDBObject query = new BasicDBObject();
+        query.put("_id", -1);
+        Document lastDoc = sessions.find().sort(query).limit(1).first();
+        ObjectId id = lastDoc.getObjectId("_id");
+        Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes);
+
+
         sessions.insertOne(session.toDocument());
 
         return session;
     }
 
     @RequestMapping(value="/session/get", method= RequestMethod.GET)
-    public Session getSession(@RequestParam(value="id", defaultValue = "0") long id){
+    public Session getSession(@RequestParam(value="id", defaultValue = "0") String id){
         MongoCollection<Document> sessions = db.getCollection("Sessions");
-        Document doc = sessions.find(eq("id", id)).first();
+        BasicDBObject query = new BasicDBObject();
+        query.put("_id", new ObjectId(id));
+        Document doc = sessions.find(query).first();
         if (doc == null) {
             return null;
         }
@@ -102,14 +109,13 @@ public class SessionController {
     }
 
     @RequestMapping(value="session/getRawData", method=RequestMethod.GET)
-    public SessionRawData getSessionRawData(@RequestParam(value="id", defaultValue = "0") long id) {
-        MongoCollection<Document> sessions = db.getCollection("Sessions");
-        Document doc = sessions.find(eq("id", id)).first();
-        if (doc == null) {
-            return null;
+    public SessionRawData getSessionRawData(@RequestParam(value="id", defaultValue = "0") String id) {
+        Session session = getSession(id);
+        if (session != null) {
+            return session.getRawData();
         }
-        Session sessionData = toSession(doc);
-        return sessionData.getRawData();
+
+        return null;
     }
 
     @RequestMapping("/sessionAnalytics/add")
@@ -119,25 +125,24 @@ public class SessionController {
     }
 
     @RequestMapping("/sessionAnalytics/get")
-    public SessionAnalytics getSessionAnalytics(@RequestParam(value="id", defaultValue = "0") long id){
-        MongoCollection<Document> sessionAnalytics = db.getCollection("SessionAnalytics");
-        Document doc = sessionAnalytics.find(eq("id", id)).first();
-        if (doc == null) {
-            return null;
-        }
-        return toSessionAnalytics(doc);
+    public SessionAnalytics getSessionAnalytics(@RequestParam(value="id", defaultValue = "0") String id){
+       Session session = getSession(id);
+       if (session != null) {
+           return session.getSessionAnalytics();
+       }
+       return null;
     }
 
     private Session toSession(Document doc) {
-        long id = doc.getLong("id");
+        String id = doc.getObjectId("_id").toString();
         long dogId = doc.getLong("dogId");
         String notes = doc.getString("notes");
 
         Document data = (Document)doc.get("rawData");
         SessionRawData rawData = toSessionRawData(data);
 
-        Document analytics = (Document)doc.get("analytics");
-        SessionAnalytics sessionAnalytics = toSessionAnalytics(analytics);
+        Document sesssionAnalytics = (Document)doc.get("sessionAnalytics");
+        SessionAnalytics sessionAnalytics = toSessionAnalytics(sesssionAnalytics);
 
         return new Session(id, dogId, rawData, sessionAnalytics, notes);
     }
@@ -170,7 +175,8 @@ public class SessionController {
 
     private SessionRawData toSessionRawData(Document doc) {
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
-        for (Document accelerometerOutputDoc : (List<Document>)doc) {
+        ArrayList<Document> outputs = (ArrayList<Document>)doc.get("accelerometerOutputs");
+        for (Document accelerometerOutputDoc : outputs) {
             accelerometerOutputs.add(toAccelerometerOutput(accelerometerOutputDoc));
         }
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
@@ -197,7 +203,8 @@ public class SessionController {
 
     private SessionAnalytics toSessionAnalytics(Document doc) {
         List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics = new ArrayList<>();
-        for (Document accelOutputAnalyticsDoc : (List<Document>)doc) {
+        ArrayList<Document> analytics = (ArrayList<Document>)doc.get("accelerometerOutputAnalytics");
+        for (Document accelOutputAnalyticsDoc : analytics) {
             accelerometerOutputAnalytics.add(toAccelerometerOuptutAnalytics(accelOutputAnalyticsDoc));
         }
         return new SessionAnalytics(accelerometerOutputAnalytics);

@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Session {
-    private long id;
+    private String id;
     private long dogId;
     private SessionRawData rawData;
     private SessionAnalytics sessionAnalytics;
     private String notes;
 
-    public Session(long id, long dogId, SessionRawData rawData, SessionAnalytics sessionAnalytics, String notes) {
+    public Session(String id, long dogId, SessionRawData rawData, SessionAnalytics sessionAnalytics, String notes) {
         this.id = id;
         this.dogId = dogId;
         this.rawData = rawData;
@@ -20,7 +20,7 @@ public class Session {
         this.notes = notes;
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
