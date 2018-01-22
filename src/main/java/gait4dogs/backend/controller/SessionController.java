@@ -3,6 +3,7 @@ package gait4dogs.backend.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.*;
@@ -105,11 +106,7 @@ public class SessionController {
         SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         // Get latest id
-        BasicDBObject query = new BasicDBObject();
-        query.put("_id", -1);
-        Document lastDoc = sessions.find().sort(query).limit(1).first();
-        ObjectId id = lastDoc.getObjectId("_id");
-
+        Integer id = (Integer)getNextSequence("Sessions");
         Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes);
 
 
@@ -122,7 +119,7 @@ public class SessionController {
     public Session getSession(@RequestParam(value="id", defaultValue = "0") String id){
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         BasicDBObject query = new BasicDBObject();
-        query.put("_id", new ObjectId(id));
+        query.put("id", id);
         Document doc = sessions.find(query).first();
         if (doc == null) {
             return null;
@@ -156,7 +153,7 @@ public class SessionController {
     }
 
     private Session toSession(Document doc) {
-        String id = doc.getObjectId("_id").toString();
+        String id = doc.getString("id");
         long dogId = doc.getLong("dogId");
         String notes = doc.getString("notes");
 
@@ -240,5 +237,15 @@ public class SessionController {
             accelerometerOutputAnalytics.add(toAccelerometerOuptutAnalytics(accelOutputAnalyticsDoc));
         }
         return new SessionAnalytics(accelerometerOutputAnalytics);
+    }
+
+    public Object getNextSequence(String name) {
+        MongoCollection<Document> collection = db.getCollection("sequence");
+        BasicDBObject find = new BasicDBObject();
+        find.put("_id", name);
+        BasicDBObject update = new BasicDBObject();
+        update.put("$inc", new BasicDBObject("seq", 1));
+        Document doc =  collection.findOneAndUpdate(find, update);
+        return doc.get("seq");
     }
 }
