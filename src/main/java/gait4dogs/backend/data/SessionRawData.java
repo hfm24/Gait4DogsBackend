@@ -22,6 +22,7 @@ public class SessionRawData {
         for (AccelerometerOutput output : accelerometerOutputs) {
             accelerometerOutputDocs.add(output.toDocument());
         }
+
         Document doc = new Document("accelerometerOutputs", accelerometerOutputDocs);
         return doc;
     }

@@ -77,17 +77,39 @@ public class SessionController {
             for (int i = 0; i < zArr.size(); i++) {
                 z[i] = zArr.get(i).floatValue();
             }
-            AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z);
+
+            JsonNode xAxisArr = dataObj.get("xAxis");
+            float[] xAxis = new float[xAxisArr.size()];
+            for (int i = 0; i < xAxisArr.size(); i++) {
+                xAxis[i] = xAxisArr.get(i).floatValue();
+            }
+
+            JsonNode yAxisArr = dataObj.get("yAxis");
+            float[] yAxis = new float[yAxisArr.size()];
+            for (int i = 0; i < yAxisArr.size(); i++) {
+                yAxis[i] = yAxisArr.get(i).floatValue();
+            }
+
+            JsonNode zAxisArr = dataObj.get("zAxis");
+            float[] zAxis = new float[zAxisArr.size()];
+            for (int i = 0; i < zAxisArr.size(); i++) {
+                zAxis[i] = zAxisArr.get(i).floatValue();
+            }
+
+
+            AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis);
             accelerometerOutputs.add(accelerometerOutput);
         }
 
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
         SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
         MongoCollection<Document> sessions = db.getCollection("Sessions");
+        // Get latest id
         BasicDBObject query = new BasicDBObject();
         query.put("_id", -1);
         Document lastDoc = sessions.find().sort(query).limit(1).first();
         ObjectId id = lastDoc.getObjectId("_id");
+
         Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes);
 
 
@@ -154,6 +176,9 @@ public class SessionController {
         List<Double> xList = (List<Double>)doc.get("x");
         List<Double> yList = (List<Double>)doc.get("y");
         List<Double> zList = (List<Double>)doc.get("z");
+        List<Double> xAxisList = (List<Double>)doc.get("xAxis");
+        List<Double> yAxisList = (List<Double>)doc.get("yAxis");
+        List<Double> zAxisList = (List<Double>)doc.get("zAxis");
 
         long[] epoc = new long[epocList.size()];
         String[] timestamp = new String[timeStampList.size()];
@@ -161,6 +186,9 @@ public class SessionController {
         float[] x = new float[xList.size()];
         float[] y = new float[yList.size()];
         float[] z = new float[zList.size()];
+        float[] xAxis = new float[xAxisList.size()];
+        float[] yAxis = new float[yAxisList.size()];
+        float[] zAxis = new float[zAxisList.size()];
 
         for (int i = 0; i < epoc.length; i++) {
             epoc[i] = epocList.get(i);
@@ -169,16 +197,20 @@ public class SessionController {
             x[i] = xList.get(i).floatValue();
             y[i] = yList.get(i).floatValue();
             z[i] = zList.get(i).floatValue();
+            xAxis[i] = xAxisList.get(i).floatValue();
+            yAxis[i] = yAxisList.get(i).floatValue();
+            zAxis[i] = zAxisList.get(i).floatValue();
         }
-        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z);
+        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis);
     }
 
     private SessionRawData toSessionRawData(Document doc) {
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
-        ArrayList<Document> outputs = (ArrayList<Document>)doc.get("accelerometerOutputs");
-        for (Document accelerometerOutputDoc : outputs) {
+        ArrayList<Document> accelerometerOutputDocs = (ArrayList<Document>)doc.get("accelerometerOutputs");
+        for (Document accelerometerOutputDoc : accelerometerOutputDocs) {
             accelerometerOutputs.add(toAccelerometerOutput(accelerometerOutputDoc));
         }
+
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
         return rawData;
     }
