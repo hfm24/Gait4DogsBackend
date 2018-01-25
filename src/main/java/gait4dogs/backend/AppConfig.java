@@ -4,6 +4,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.util.AnalysisUtil;
+import gait4dogs.backend.util.DBUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -24,5 +25,10 @@ public class AppConfig {
     public @Bean
     AnalysisUtil analysisUtil() {
         return new AnalysisUtil();
+    }
+
+    public @Bean
+    DBUtil dbUtil() {
+        return new DBUtil();
     }
 }

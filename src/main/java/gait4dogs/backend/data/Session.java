@@ -7,12 +7,12 @@ import java.util.List;
 
 public class Session {
     private String id;
-    private long dogId;
+    private String dogId;
     private SessionRawData rawData;
     private SessionAnalytics sessionAnalytics;
     private String notes;
 
-    public Session(String id, long dogId, SessionRawData rawData, SessionAnalytics sessionAnalytics, String notes) {
+    public Session(String id, String dogId, SessionRawData rawData, SessionAnalytics sessionAnalytics, String notes) {
         this.id = id;
         this.dogId = dogId;
         this.rawData = rawData;
@@ -24,7 +24,7 @@ public class Session {
         return id;
     }
 
-    public long getDogId() {
+    public String getDogId() {
         return dogId;
     }
 

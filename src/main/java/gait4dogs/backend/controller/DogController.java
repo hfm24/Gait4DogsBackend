@@ -1,6 +1,8 @@
 package gait4dogs.backend.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -8,9 +10,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.Dog;
 import gait4dogs.backend.data.DogAnalytics;
+import gait4dogs.backend.util.DBUtil;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +27,8 @@ public class DogController {
 
     @Autowired
     MongoDatabase db;
+    @Autowired
+    DBUtil dbUtil;
 
     private final AtomicLong counter = new AtomicLong();
 
@@ -41,10 +47,8 @@ public class DogController {
 
 
         MongoCollection<Document> dogs = db.getCollection("Dogs");
-        BasicDBObject query = new BasicDBObject();
-        query.put("_id", -1);
-        Document lastDoc = dogs.find().sort(query).limit(1).first();
-        ObjectId id = lastDoc.getObjectId("_id");
+        // Get latest id
+        Integer id = (Integer)dbUtil.getNextSequence("Dogs");
         Dog dog = new Dog(id.toString(), name, height, weight, breed, birthDate);
         dogs.insertOne(dog.toDocument());
 
@@ -52,17 +56,30 @@ public class DogController {
     }
 
     @RequestMapping("/dog/get")
-    public Dog getDog(@RequestParam(value="name", defaultValue = "Spot") String name) {
-        return new Dog("0",name, 5, 80, "German Shepherd", "October 8th, 2017");
+    public Dog getDog(@RequestParam(value="id", defaultValue = "0") String id) {
+        MongoCollection<Document> dogs = db.getCollection("Dogs");
+        BasicDBObject query = new BasicDBObject();
+        query.put("id", id);
+        Document doc = dogs.find(query).first();
+        if (doc == null) {
+            return null;
+        }
+        return toDog(doc);
     }
 
     @RequestMapping("/dog/getAll")
     public Dog[] getAll() {
-        Dog[] dogs = new Dog[2];
-        for (int i = 0; i < dogs.length; i++) {
-            dogs[i] = getDog("Dog " + i);
+        MongoCollection<Document> dogs = db.getCollection("Dogs");
+        List<Dog> dogList = new ArrayList<>();
+        MongoCursor<Document> docs = dogs.find().iterator();
+        while (docs.hasNext()) {
+            dogList.add(toDog(docs.next()));
         }
-        return dogs;
+        Dog[] dogArray = new Dog[dogList.size()];
+        for (int i = 0; i < dogList.size(); i++) {
+            dogArray[i] = dogList.get(i);
+        }
+        return dogArray;
     }
 
     @RequestMapping("/dogAnalytics/add")
@@ -74,5 +91,15 @@ public class DogController {
     @RequestMapping("/dogAnalytics/get")
     public DogAnalytics getDogAnalytics(@RequestParam(value="id", defaultValue = "0") long id){
         return new DogAnalytics(id);
+    }
+
+    private Dog toDog(Document doc) {
+        String id = doc.getString("id");
+        String name = doc.getString("name");
+        float height = doc.getDouble("height").floatValue();
+        float weight = doc.getDouble("weight").floatValue();
+        String breed = doc.getString("breed");
+        String birthDate = doc.getString("birthDate");
+        return new Dog(id, name, height, weight, breed, birthDate);
     }
 }

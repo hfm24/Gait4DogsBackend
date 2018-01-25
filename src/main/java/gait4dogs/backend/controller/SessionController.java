@@ -8,6 +8,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.*;
 import gait4dogs.backend.util.AnalysisUtil;
+import gait4dogs.backend.util.DBUtil;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class SessionController {
     @Autowired
     private MongoDatabase db;
     @Autowired
+    private DBUtil dbUtil;
+    @Autowired
     private AnalysisUtil analysisUtil;
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -37,7 +40,7 @@ public class SessionController {
 
 
         JsonNode sessionObj = mapper.readTree(json);
-        Long dogId = sessionObj.get("dogId").longValue();
+        String dogId = sessionObj.get("dogId").textValue();
         String notes = sessionObj.get("notes").textValue();
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
         JsonNode accelOutputs = sessionObj.get("data");
@@ -106,7 +109,7 @@ public class SessionController {
         SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         // Get latest id
-        Integer id = (Integer)getNextSequence("Sessions");
+        Integer id = (Integer) dbUtil.getNextSequence("Sessions");
         Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes);
 
 
@@ -154,7 +157,7 @@ public class SessionController {
 
     private Session toSession(Document doc) {
         String id = doc.getString("id");
-        long dogId = doc.getLong("dogId");
+        String dogId = doc.getString("dogId");
         String notes = doc.getString("notes");
 
         Document data = (Document)doc.get("rawData");
@@ -239,13 +242,5 @@ public class SessionController {
         return new SessionAnalytics(accelerometerOutputAnalytics);
     }
 
-    public Object getNextSequence(String name) {
-        MongoCollection<Document> collection = db.getCollection("sequence");
-        BasicDBObject find = new BasicDBObject();
-        find.put("_id", name);
-        BasicDBObject update = new BasicDBObject();
-        update.put("$inc", new BasicDBObject("seq", 1));
-        Document doc =  collection.findOneAndUpdate(find, update);
-        return doc.get("seq");
-    }
+
 }
