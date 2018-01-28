@@ -10,14 +10,18 @@ public class AccelerometerOutputAnalytics {
     private float[] maximums;
     private float[] ranges;
     private float minMagnitude, maxMagnitude, rangeMagnitude;
+    private List<Angle> angles; // List of float arrays where each array contains single pitch and single roll
 
-    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges, float minMagnitude, float maxMagnitude, float rangeMagnitude) {
+    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+                                        float minMagnitude, float maxMagnitude, float rangeMagnitude,
+                                        List<Angle> angles) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
         this.minMagnitude = minMagnitude;
         this.maxMagnitude = maxMagnitude;
         this.rangeMagnitude = rangeMagnitude;
+        this.angles = angles;
     }
 
     public float[] getMinimums() {
@@ -44,6 +48,10 @@ public class AccelerometerOutputAnalytics {
         return rangeMagnitude;
     }
 
+    public List<Angle> getAngles() {
+        return angles;
+    }
+
     public Document toDocument() {
         List<Float> minList = new ArrayList<>();
         List<Float> maxList = new ArrayList<>();
@@ -53,6 +61,10 @@ public class AccelerometerOutputAnalytics {
             maxList.add(maximums[i]);
             rangeList.add(ranges[i]);
         }
+        List<Document> angleDocs = new ArrayList<>();
+        for (Angle angle : angles) {
+            angleDocs.add(angle.toDocument());
+        }
 
 
         Document doc = new Document("minimums", minList)
@@ -60,7 +72,8 @@ public class AccelerometerOutputAnalytics {
                 .append("ranges", rangeList)
                 .append("minMagnitude", minMagnitude)
                 .append("maxMagnitude", maxMagnitude)
-                .append("rangeMagnitude", rangeMagnitude);
+                .append("rangeMagnitude", rangeMagnitude)
+                .append("angles", angleDocs);
 
         return doc;
     }

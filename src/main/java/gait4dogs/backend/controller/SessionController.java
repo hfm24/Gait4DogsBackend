@@ -230,7 +230,8 @@ public class SessionController {
         float minMagnitude = doc.getDouble("minMagnitude").floatValue();
         float maxMagnitude = doc.getDouble("maxMagnitude").floatValue();
         float rangeMagnitude = doc.getDouble("rangeMagnitude").floatValue();
-        return new AccelerometerOutputAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude);
+        List<Angle> angles = (List<Angle>)doc.get("angles");
+        return new AccelerometerOutputAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude, angles);
     }
 
     private SessionAnalytics toSessionAnalytics(Document doc) {
