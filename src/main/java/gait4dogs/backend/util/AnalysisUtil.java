@@ -29,7 +29,7 @@ public class AnalysisUtil {
             axisData.add(accelerometerOutput.getZ());
 
             float[] minimums = new float[3];
-            for(int j = 0; j < 3; j++) {
+            for (int j = 0; j < 3; j++) {
                 float curr = 0;
                 float near = axisData.get(j)[0];
                 for (int i = 0; i < accelerometerOutput.getX().length; i++) {
@@ -91,11 +91,11 @@ public class AnalysisUtil {
             maxMagnitude = magnitudes[0];
             minMagnitude = magnitudes[0];
 
-            for(int i = 0; i < magnitudes.length ; i++){
-                if(maxMagnitude < magnitudes[i]){
+            for (int i = 0; i < magnitudes.length; i++) {
+                if (maxMagnitude < magnitudes[i]) {
                     maxMagnitude = magnitudes[i];
                 }
-                if(minMagnitude > magnitudes[i]){
+                if (minMagnitude > magnitudes[i]) {
                     minMagnitude = magnitudes[i];
                 }
             }
@@ -110,8 +110,7 @@ public class AnalysisUtil {
         return new SessionAnalytics(accelerometerOutputAnalytics);
     }
 
-    public List<Angle> getAngles(AccelerometerOutput accelerometerOutput)
-    {
+    public List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
         List<Angle> output = new ArrayList<Angle>();
         float[] t = accelerometerOutput.getElapsed();
         float[] x = accelerometerOutput.getX();
@@ -124,13 +123,13 @@ public class AnalysisUtil {
         float roll = 0;
 
         for (int i = 0; i < t.length; i++) {
-            float[] accData = new float[]{x[i],y[i],z[i]};
-            float[] rotData = new float[]{xRot[i],yRot[i],zRot[i]};
+            float[] accData = new float[]{x[i], y[i], z[i]};
+            float[] rotData = new float[]{xRot[i], yRot[i], zRot[i]};
             float dt;
             if (i == 0) {
                 dt = 0;
             } else {
-                dt = t[i] - t[i-1];
+                dt = t[i] - t[i - 1];
             }
             output.add(complementaryFilter(accData, rotData, pitch, roll, dt));
         }
@@ -142,22 +141,54 @@ public class AnalysisUtil {
         float pitchAcc, rollAcc;
 
         // Integrate the gyroscope data -> int(angularSpeed) = angle
-        pitch += ((float)rotData[0]) * dt; // Angle around the x-axis
-        roll -= ((float) rotData[1]) * dt; // Angle around the y-axis
+        pitch += ((float) rotData[0] / GYROSCOPE_SENSITIVITY) * dt; // Angle around the x-axis
+        roll -= ((float) rotData[1] / GYROSCOPE_SENSITIVITY) * dt; // Angle around the y-axis
 
         // Compensate for drift with accelerometer data if !bullshit
         // Sensitivity = -2 to 2 G at 16Bit -> 2G = 32768 && 0.5G = 8192
         float forceMagnitudeApprox = (accData[0]) + abs(accData[1]) + abs(accData[2]);
         if (forceMagnitudeApprox > 0.5 && forceMagnitudeApprox < 2) {
             // Turning around the X axis results in a vector on the Y-axis
-            pitchAcc = (float)(Math.atan2(accData[1], accData[2]) * 180 / Math.PI);
-            pitch = (float)(pitch * 0.98 + pitchAcc * 0.02);
+            pitchAcc = (float) (Math.atan2(accData[1], accData[2]) * 180 / Math.PI);
+            pitch = (float) (pitch * 0.98 + pitchAcc * 0.02);
 
             // Turning around the Y axis results in a vector on the X-axis
-            rollAcc = (float)(Math.atan2(accData[0], accData[2]) * 180 / Math.PI);
-            roll = (float)(roll * 0.98 + rollAcc * 0.02);
+            rollAcc = (float) (Math.atan2(accData[0], accData[2]) * 180 / Math.PI);
+            roll = (float) (roll * 0.98 + rollAcc * 0.02);
         }
 
         return new Angle(pitch, roll);
     }
+
+
+    public List<float[]> averageSmooth(AccelerometerOutput accelerometerOutput) {
+
+        List<float[]> smoothedAccelerometerOutput = new ArrayList<>();
+
+        float xSum = 0, ySum = 0, zSum = 0;
+        float[] x = accelerometerOutput.getX();
+        float[] y = accelerometerOutput.getY();
+        float[] z = accelerometerOutput.getZ();
+
+        for (int i = 0; i < x.length; i++) {
+            xSum += x[i];
+            ySum += y[i];
+            zSum += z[i];
+
+            if (i % 6 == 0) {
+                float[] averageList = new float[3];
+                averageList[0] = xSum/6;
+                averageList[1] = ySum/6;
+                averageList[2] = zSum/6;
+
+                xSum = 0;
+                ySum = 0;
+                zSum = 0;
+                smoothedAccelerometerOutput.add(averageList);
+            }
+        }
+        return smoothedAccelerometerOutput;
+    }
+
 }
+
