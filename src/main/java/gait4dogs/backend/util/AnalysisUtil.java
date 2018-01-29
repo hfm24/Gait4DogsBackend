@@ -44,28 +44,31 @@ public class AnalysisUtil {
 
             //Finding the Maximum Acceleration Values
             float[] maximums = new float[3];
-            Arrays.sort(accelerometerOutput.getX());
-            Arrays.sort(accelerometerOutput.getY());
-            Arrays.sort(accelerometerOutput.getZ());
+            float[] x = Arrays.copyOf(accelerometerOutput.getX(), accelerometerOutput.getX().length);
+            float[] y = Arrays.copyOf(accelerometerOutput.getY(), accelerometerOutput.getY().length);
+            float[] z = Arrays.copyOf(accelerometerOutput.getZ(), accelerometerOutput.getZ().length);
+            Arrays.sort(x);
+            Arrays.sort(y);
+            Arrays.sort(z);
 
-            if(abs(accelerometerOutput.getX()[0]) > accelerometerOutput.getX()[accelerometerOutput.getX().length-1]){
-                maximums[0] = accelerometerOutput.getX()[0];
+            if(abs(x[0]) > x[x.length-1]){
+                maximums[0] = x[0];
             }
             else
-                maximums[0] = accelerometerOutput.getX()[accelerometerOutput.getX().length-1];
+                maximums[0] = x[x.length-1];
 
-            if(abs(accelerometerOutput.getY()[0]) > accelerometerOutput.getY()[accelerometerOutput.getY().length-1]){
-                maximums[1] = accelerometerOutput.getY()[0];
+            if(abs(y[0]) > y[y.length-1]){
+                maximums[1] = y[0];
             }
             else
-                maximums[1] = accelerometerOutput.getY()[accelerometerOutput.getY().length-1];
+                maximums[1] = y[y.length-1];
 
 
-            if(abs(accelerometerOutput.getZ()[0]) > accelerometerOutput.getZ()[accelerometerOutput.getZ().length-1]){
-                maximums[2] = accelerometerOutput.getZ()[0];
+            if(abs(z[0]) > z[z.length-1]){
+                maximums[2] = z[0];
             }
             else
-                maximums[2] = accelerometerOutput.getZ()[accelerometerOutput.getZ().length-1];
+                maximums[2] = z[z.length-1];
 
 
             float[] ranges = new float[3];
@@ -80,9 +83,9 @@ public class AnalysisUtil {
             float minMagnitude;
             float rangeMagnitude;
 
-            float[] magnitudes = new float[accelerometerOutput.getX().length];
-            for(int i = 0; i < accelerometerOutput.getX().length ; i++){
-                magnitudes[i] = (float) Math.sqrt((accelerometerOutput.getX()[i] * accelerometerOutput.getX()[i]) + (accelerometerOutput.getY()[i] * accelerometerOutput.getY()[i]) + (accelerometerOutput.getZ()[i] * accelerometerOutput.getZ()[i]));
+            float[] magnitudes = new float[x.length];
+            for(int i = 0; i < x.length ; i++){
+                magnitudes[i] = (float) Math.sqrt((x[i] * x[i]) + (y[i] * y[i]) + (z[i] * z[i]));
             }
 
             maxMagnitude = magnitudes[0];
@@ -139,8 +142,8 @@ public class AnalysisUtil {
         float pitchAcc, rollAcc;
 
         // Integrate the gyroscope data -> int(angularSpeed) = angle
-        pitch += ((float)rotData[0] / GYROSCOPE_SENSITIVITY) * dt; // Angle around the x-axis
-        roll -= ((float) rotData[1] / GYROSCOPE_SENSITIVITY) * dt; // Angle around the y-axis
+        pitch += ((float)rotData[0]) * dt; // Angle around the x-axis
+        roll -= ((float) rotData[1]) * dt; // Angle around the y-axis
 
         // Compensate for drift with accelerometer data if !bullshit
         // Sensitivity = -2 to 2 G at 16Bit -> 2G = 32768 && 0.5G = 8192
