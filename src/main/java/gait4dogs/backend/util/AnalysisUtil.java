@@ -10,8 +10,7 @@ import static java.lang.Math.abs;
 
 public class AnalysisUtil {
 
-    private final float ACCELEROMETER_SENSITIVITY = 0.5f;
-    private final float GYROSCOPE_SENSITIVITY = 65;
+    private final float GYROSCOPE_SENSITIVITY = 100;
 
     public AnalysisUtil() {
 
@@ -103,6 +102,11 @@ public class AnalysisUtil {
             rangeMagnitude = maxMagnitude - minMagnitude;
 
             List<Angle> angles = getAngles(accelerometerOutput);
+            List<float[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ());
+            List<Integer> peakStridePoints = getPeakStrides(smoothedAcc);
+            for (int i : peakStridePoints) {
+                System.out.println(accelerometerOutput.getElapsed()[i*3]);
+            }
             accelerometerOutputAnalytics.add(new AccelerometerOutputAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude, angles));
         }
 
@@ -121,17 +125,16 @@ public class AnalysisUtil {
         float[] zRot = accelerometerOutput.getzAxis();
         float pitch = 0;
         float roll = 0;
+        List<float[]> smoothedAcc = averageSmooth(x, y, z);
+        List<float[]> smoothedRot = averageSmooth(xRot, yRot, zRot);
 
-        for (int i = 0; i < t.length; i++) {
-            float[] accData = new float[]{x[i], y[i], z[i]};
-            float[] rotData = new float[]{xRot[i], yRot[i], zRot[i]};
-            float dt;
-            if (i == 0) {
-                dt = 0;
-            } else {
-                dt = t[i] - t[i - 1];
-            }
-            output.add(complementaryFilter(accData, rotData, pitch, roll, dt));
+        for (int i = 0; i < smoothedAcc.size(); i++) {
+            //System.out.println(t[i*3] + ", " + smoothedAcc.get(i)[0] + ", " + smoothedAcc.get(i)[1] + ", " + smoothedAcc.get(i)[2]);
+            //System.out.println(t[i*3] + ", " + smoothedRot.get(i)[0] + ", " + smoothedRot.get(i)[1] + ", " + smoothedRot.get(i)[2]);
+            Angle thisAngle = complementaryFilter(smoothedAcc.get(i), smoothedRot.get(i), pitch, roll, 0.11f);
+            pitch = thisAngle.getPitch();
+            roll = thisAngle.getRoll();
+            output.add(thisAngle);
         }
 
         return output;
@@ -141,8 +144,9 @@ public class AnalysisUtil {
         float pitchAcc, rollAcc;
 
         // Integrate the gyroscope data -> int(angularSpeed) = angle
-        pitch += ((float) rotData[0] / GYROSCOPE_SENSITIVITY) * dt; // Angle around the x-axis
-        roll -= ((float) rotData[1] / GYROSCOPE_SENSITIVITY) * dt; // Angle around the y-axis
+        pitch += (rotData[0] ) * dt; // Angle around the x-axis
+        roll -= (rotData[1] ) * dt; // Angle around the y-axis
+
 
         // Compensate for drift with accelerometer data if !bullshit
         // Sensitivity = -2 to 2 G at 16Bit -> 2G = 32768 && 0.5G = 8192
@@ -160,26 +164,22 @@ public class AnalysisUtil {
         return new Angle(pitch, roll);
     }
 
-
-    public List<float[]> averageSmooth(AccelerometerOutput accelerometerOutput) {
+    public List<float[]> averageSmooth(float[] x, float[] y, float[] z) {
 
         List<float[]> smoothedAccelerometerOutput = new ArrayList<>();
 
         float xSum = 0, ySum = 0, zSum = 0;
-        float[] x = accelerometerOutput.getX();
-        float[] y = accelerometerOutput.getY();
-        float[] z = accelerometerOutput.getZ();
 
         for (int i = 0; i < x.length; i++) {
             xSum += x[i];
             ySum += y[i];
             zSum += z[i];
 
-            if (i % 6 == 0) {
+            if (i % 3 == 0) {
                 float[] averageList = new float[3];
-                averageList[0] = xSum/6;
-                averageList[1] = ySum/6;
-                averageList[2] = zSum/6;
+                averageList[0] = xSum/3;
+                averageList[1] = ySum/3;
+                averageList[2] = zSum/3;
 
                 xSum = 0;
                 ySum = 0;
@@ -190,5 +190,28 @@ public class AnalysisUtil {
         return smoothedAccelerometerOutput;
     }
 
+    public List<Integer> getPeakStrides(List<float[]> accData) {
+        float epsilon = 0.3f;
+        List<Integer> peakStridePoints = new ArrayList<>();
+        float currentMagnitude;
+        float lastMagnitude;
+        float nextMagnitude;
+        for (int i = 1; i < accData.size()-1; i++) {
+            float[] lastDataPoint = accData.get(i-1);
+            float[] dataPoint = accData.get(i);
+            float[] nextDataPoint = accData.get(i+1);
+            lastMagnitude = magnitude(lastDataPoint[0], lastDataPoint[1], lastDataPoint[2]);
+            currentMagnitude = magnitude(dataPoint[0], dataPoint[1], dataPoint[2]);
+            nextMagnitude = magnitude(nextDataPoint[0], nextDataPoint[1], nextDataPoint[2]);
+            if (lastMagnitude > currentMagnitude && nextMagnitude-currentMagnitude > epsilon ) {
+                peakStridePoints.add(i);
+            }
+        }
+        return peakStridePoints;
+    }
+
+    private float magnitude(float x, float y, float z) {
+        return (float)Math.sqrt(x*x+y*y+z*z);
+    }
 }
 
