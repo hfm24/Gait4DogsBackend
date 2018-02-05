@@ -219,6 +219,7 @@ public class SessionController {
         List<Double> minList = (List<Double>)doc.get("minimums");
         List<Double> maxList = (List<Double>)doc.get("maximums");
         List<Double> rangesList = (List<Double>)doc.get("ranges");
+        List<Float> footStrikes = (List<Float>)doc.get("footStrikes");
         float[] minimums = new float[minList.size()];
         float[] maximums = new float[maxList.size()];
         float[] ranges = new float[rangesList.size()];
@@ -231,7 +232,7 @@ public class SessionController {
         float maxMagnitude = doc.getDouble("maxMagnitude").floatValue();
         float rangeMagnitude = doc.getDouble("rangeMagnitude").floatValue();
         List<Angle> angles = (List<Angle>)doc.get("angles");
-        return new AccelerometerOutputAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude, angles);
+        return new AccelerometerOutputAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude, angles, footStrikes);
     }
 
     private SessionAnalytics toSessionAnalytics(Document doc) {

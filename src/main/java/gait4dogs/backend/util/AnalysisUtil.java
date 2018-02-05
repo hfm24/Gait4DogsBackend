@@ -102,12 +102,46 @@ public class AnalysisUtil {
             rangeMagnitude = maxMagnitude - minMagnitude;
 
             List<Angle> angles = getAngles(accelerometerOutput);
+
             List<float[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ());
-            List<Integer> peakStridePoints = getPeakStrides(smoothedAcc);
-            for (int i : peakStridePoints) {
-                System.out.println(accelerometerOutput.getElapsed()[i*3]);
+
+            // Measuring mean distance between foot strikes
+            List<Integer> footStrikes = getFootStrikes(smoothedAcc);
+            List<Float> footStrikeTimes = new ArrayList<>();
+
+            float sum = 0;
+            int firstFootStrikeIdx = footStrikes.get(0);
+            float lastElapsed = accelerometerOutput.getElapsed()[firstFootStrikeIdx*3];
+            footStrikeTimes.add(lastElapsed);
+            float currentElapsed;
+            float dt;
+            List<Float> dts = new ArrayList<>();
+            System.out.println(lastElapsed);
+            for (int i = 1; i < footStrikes.size(); i++) {
+                int elapsedTIdx = footStrikes.get(i);
+                currentElapsed = accelerometerOutput.getElapsed()[elapsedTIdx*3];
+                footStrikeTimes.add(currentElapsed);
+                System.out.println(currentElapsed);
+                dt = currentElapsed - lastElapsed;
+                dts.add(dt);
+                lastElapsed = currentElapsed;
+                sum += dt;
             }
-            accelerometerOutputAnalytics.add(new AccelerometerOutputAnalytics(minimums, maximums, ranges, minMagnitude, maxMagnitude, rangeMagnitude, angles));
+            float avgDt = sum / dts.size();
+
+            sum = 0;
+            for (int i = 1; i < dts.size(); i++) {
+                float sqrMean = (dts.get(i) - avgDt)*(dts.get(i) - avgDt);
+                sum += sqrMean;
+            }
+            float dtVariance = sum / (dts.size()-1);
+
+            System.out.println("average time between steps: " + avgDt);
+            System.out.println("variance of time between steps: " + dtVariance);
+            AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges,
+                    minMagnitude, maxMagnitude, rangeMagnitude,
+                    angles, footStrikeTimes);
+            accelerometerOutputAnalytics.add(AOA);
         }
 
 
@@ -190,7 +224,7 @@ public class AnalysisUtil {
         return smoothedAccelerometerOutput;
     }
 
-    public List<Integer> getPeakStrides(List<float[]> accData) {
+    public List<Integer> getFootStrikes(List<float[]> accData) {
         float epsilon = 0.3f;
         List<Integer> peakStridePoints = new ArrayList<>();
         float currentMagnitude;

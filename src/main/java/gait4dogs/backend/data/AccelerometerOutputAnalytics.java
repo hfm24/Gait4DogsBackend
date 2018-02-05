@@ -9,6 +9,7 @@ public class AccelerometerOutputAnalytics {
     private float[] minimums;
     private float[] maximums;
     private float[] ranges;
+    private List<Float> footStrikeTimes;
     private float minMagnitude, maxMagnitude, rangeMagnitude;
     private List<Angle> angles; // List of float arrays where each array contains single pitch and single roll
 
@@ -22,6 +23,20 @@ public class AccelerometerOutputAnalytics {
         this.maxMagnitude = maxMagnitude;
         this.rangeMagnitude = rangeMagnitude;
         this.angles = angles;
+        this.footStrikeTimes = new ArrayList<Float>();
+    }
+
+    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+                                        float minMagnitude, float maxMagnitude, float rangeMagnitude,
+                                        List<Angle> angles, List<Float> footStrikeTimes) {
+        this.minimums = minimums;
+        this.maximums = maximums;
+        this.ranges = ranges;
+        this.minMagnitude = minMagnitude;
+        this.maxMagnitude = maxMagnitude;
+        this.rangeMagnitude = rangeMagnitude;
+        this.angles = angles;
+        this.footStrikeTimes = footStrikeTimes;
     }
 
     public float[] getMinimums() {
@@ -52,6 +67,14 @@ public class AccelerometerOutputAnalytics {
         return angles;
     }
 
+    public List<Float> getFootStrikeTimes() {
+        return footStrikeTimes;
+    }
+
+    public void setFootStrikeTimes(List<Float> footStrikeTimes) {
+        this.footStrikeTimes = footStrikeTimes;
+    }
+
     public Document toDocument() {
         List<Float> minList = new ArrayList<>();
         List<Float> maxList = new ArrayList<>();
@@ -73,7 +96,8 @@ public class AccelerometerOutputAnalytics {
                 .append("minMagnitude", minMagnitude)
                 .append("maxMagnitude", maxMagnitude)
                 .append("rangeMagnitude", rangeMagnitude)
-                .append("angles", angleDocs);
+                .append("angles", angleDocs)
+                .append("footStrikes", footStrikeTimes);
 
         return doc;
     }
