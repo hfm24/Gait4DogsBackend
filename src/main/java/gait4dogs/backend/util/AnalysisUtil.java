@@ -277,6 +277,34 @@ public class AnalysisUtil {
         return peakStridePoints;
     }
 
+    public List<> getNoiseAverage(AccelerometerOutput gyroData){
+        double average = 0.0;
+        float[] xRotation = gyroData.getxAxis();
+        float[] yRotation = gyroData.getyAxis();
+        float[] zRotation = gyroData.getzAxis();
+
+        float xAverage = getMaxPoint(xRotation);
+        float yAverage = getMaxPoint(yRotation);
+        float zAverage = getMaxPoint(zRotation);
+
+        double xNoise = xAverage * .05;
+        double yNoise = yAverage * .05;
+        double zNoise = zAverage * .05;
+
+        return average;
+    }
+
+    public float getMaxPoint(float[] list){
+        float max = 0;
+        for(int i = 0; i < list.length; i++) {
+            if (list[i] > max) {
+                max = list[i];
+            }
+        }
+        return max;
+
+    }
+
     private float magnitude(float x, float y, float z) {
         return (float)Math.sqrt(x*x+y*y+z*z);
     }
