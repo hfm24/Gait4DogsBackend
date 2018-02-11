@@ -303,8 +303,6 @@ public class AnalysisUtil {
 
         // If the area is small, good.
         // If the area is large, bad.
-
-        
     }
 }
 
