@@ -152,7 +152,7 @@ public class AnalysisUtil {
 
         long sum = 0;
         int firstFootStrikeIdx = footStrikes.get(0);
-        long lastEpoc = (long)axisData.get(firstFootStrikeIdx)[3];
+        long lastEpoc = (long)axisData.get(3)[firstFootStrikeIdx];
         footStrikeTimes.add(lastEpoc);
         long currentEpoc;
         long dt;
@@ -160,7 +160,7 @@ public class AnalysisUtil {
         System.out.println(lastEpoc);
         for (int i = 1; i < footStrikes.size(); i++) {
             int elapsedTIdx = footStrikes.get(i);
-            currentEpoc = (long)axisData.get(elapsedTIdx)[3];
+            currentEpoc = (long)axisData.get(3)[elapsedTIdx];
             footStrikeTimes.add(currentEpoc);
             System.out.println(currentEpoc);
             dt = currentEpoc - lastEpoc;
@@ -183,6 +183,28 @@ public class AnalysisUtil {
         return footStrikeTimes;
     }
 
+    public List<Integer> getFootStrikes(List<double[]> accData) {
+
+        double[] x = accData.get(0);
+        double[] y = accData.get(1);
+        double[] z = accData.get(2);
+
+        float epsilon = 0.25f;
+        List<Integer> peakStridePoints = new ArrayList<>();
+        double currentMagnitude;
+        double lastMagnitude;
+        double nextMagnitude;
+        for (int i = 1; i < x.length-1; i++) {
+            lastMagnitude = magnitude(x[i-1], y[i-1], z[i-1]);
+            currentMagnitude = magnitude(x[i], y[i], z[i]);
+            nextMagnitude = magnitude(x[i+1], y[i+1], z[i+1]);
+            if (lastMagnitude > currentMagnitude && nextMagnitude-currentMagnitude > epsilon ) {
+                peakStridePoints.add(i);
+            }
+        }
+        return peakStridePoints;
+    }
+
     public List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
         List<Angle> output = new ArrayList<Angle>();
 
@@ -198,11 +220,21 @@ public class AnalysisUtil {
         float roll = 0;
         List<double[]> smoothedAcc = averageSmooth(x, y, z, t);
         List<double[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t);
+        smoothedRot = getNoiseAverage(smoothedRot);
+        double[] smoothAccX = smoothedAcc.get(0);
+        double[] smoothAccY = smoothedAcc.get(1);
+        double[] smoothAccZ = smoothedAcc.get(2);
 
-        for (int i = 0; i < smoothedAcc.size(); i++) {
+        double[] smoothRotX = smoothedRot.get(0);
+        double[] smoothRotY = smoothedRot.get(1);
+        double[] smoothRotZ = smoothedRot.get(2);
+
+        for (int i = 0; i < smoothedAcc.get(3).length; i++) {
             //System.out.println(t[i*3] + ", " + smoothedAcc.get(i)[0] + ", " + smoothedAcc.get(i)[1] + ", " + smoothedAcc.get(i)[2]);
             //System.out.println(t[i*3] + ", " + smoothedRot.get(i)[0] + ", " + smoothedRot.get(i)[1] + ", " + smoothedRot.get(i)[2]);
-            Angle thisAngle = complementaryFilter(smoothedAcc.get(i), smoothedRot.get(i), pitch, roll, 0.11f);
+            double[] accX = new double[]{smoothAccX[i],smoothAccY[i], smoothAccZ[i]};
+            double[] rotX = new double[]{smoothRotX[i],smoothRotY[i],smoothRotZ[i]};
+            Angle thisAngle = complementaryFilter(accX, rotX, pitch, roll, 0.11f);
             pitch = thisAngle.getPitch();
             roll = thisAngle.getRoll();
             output.add(thisAngle);
@@ -240,6 +272,10 @@ public class AnalysisUtil {
         List<double[]> smoothedAccelerometerOutput = new ArrayList<>();
 
         float xSum = 0, ySum = 0, zSum = 0;
+        double[] averageX = new double[x.length / 3];
+        double[] averageY = new double[y.length / 3];
+        double[] averageZ = new double[z.length / 3];
+        double[] averageT = new double[t.length / 3];
 
         for (int i = 0; i < x.length; i++) {
             xSum += x[i];
@@ -247,56 +283,41 @@ public class AnalysisUtil {
             zSum += z[i];
 
             if (i % 3 == 0) {
-                double[] averageList = new double[4];
-                averageList[0] = xSum/3;
-                averageList[1] = ySum/3;
-                averageList[2] = zSum/3;
-                averageList[3] = t[i];
+                averageX[i/3] = xSum/3;
+                averageY[i/3] = ySum/3;
+                averageZ[i/3] = zSum/3;
+                averageT[i/3] = t[i];
 
                 xSum = 0;
                 ySum = 0;
                 zSum = 0;
-                smoothedAccelerometerOutput.add(averageList);
-            }
-        }
-        return smoothedAccelerometerOutput;
-    }
 
-    public List<Integer> getFootStrikes(List<double[]> accData) {
-        float epsilon = 0.25f;
-        List<Integer> peakStridePoints = new ArrayList<>();
-        double currentMagnitude;
-        double lastMagnitude;
-        double nextMagnitude;
-        for (int i = 1; i < accData.size()-1; i++) {
-            double[] lastDataPoint = accData.get(i-1);
-            double[] dataPoint = accData.get(i);
-            double[] nextDataPoint = accData.get(i+1);
-            lastMagnitude = magnitude(lastDataPoint[0], lastDataPoint[1], lastDataPoint[2]);
-            currentMagnitude = magnitude(dataPoint[0], dataPoint[1], dataPoint[2]);
-            nextMagnitude = magnitude(nextDataPoint[0], nextDataPoint[1], nextDataPoint[2]);
-            if (lastMagnitude > currentMagnitude && nextMagnitude-currentMagnitude > epsilon ) {
-                peakStridePoints.add(i);
             }
         }
-        return peakStridePoints;
+        smoothedAccelerometerOutput.add(averageX);
+        smoothedAccelerometerOutput.add(averageY);
+        smoothedAccelerometerOutput.add(averageZ);
+        smoothedAccelerometerOutput.add(averageT);
+        return smoothedAccelerometerOutput;
     }
 
     //noise
     public List<double[]> getNoiseAverage(List<double[]> gyroData){
+
         double[] xRotation = gyroData.get(0);
         double[] yRotation = gyroData.get(1);
         double[] zRotation = gyroData.get(2);
 
-        double xAverage = getMaxPoint(xRotation);
-        double yAverage = getMaxPoint(yRotation);
-        double zAverage = getMaxPoint(zRotation);
+        double xMax = getMaxPoint(xRotation);
+        double yMax = getMaxPoint(yRotation);
+        double zMax = getMaxPoint(zRotation);
 
-        double xNoise = xAverage * .05;
-        double yNoise = yAverage * .05;
-        double zNoise = zAverage * .05;
+        double xNoise = xMax * .05;
+        double yNoise = yMax * .05;
+        double zNoise = zMax * .05;
 
-        for(int i = 0; i <xRotation.length; i++){
+        List<double[]> averagedNoise = new ArrayList<>();
+        for(int i = 0; i < xRotation.length; i++){
             if(xRotation[i] < xNoise){
                 xRotation[i] = 0;
             }
@@ -310,7 +331,7 @@ public class AnalysisUtil {
             }
         }
 
-        List<double[]> averagedNoise = null;
+
 
         averagedNoise.add(xRotation);
         averagedNoise.add(yRotation);
