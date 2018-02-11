@@ -12,6 +12,7 @@ public class AccelerometerOutputAnalytics {
     private List<Long> footStrikeTimes;
     private float minMagnitude, maxMagnitude, rangeMagnitude;
     private List<Angle> angles; // List of float arrays where each array contains single pitch and single roll
+    private List<double[]> smoothedAcc;
 
     public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
                                         float minMagnitude, float maxMagnitude, float rangeMagnitude,
@@ -37,6 +38,20 @@ public class AccelerometerOutputAnalytics {
         this.rangeMagnitude = rangeMagnitude;
         this.angles = angles;
         this.footStrikeTimes = footStrikeTimes;
+    }
+
+    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+                                        float minMagnitude, float maxMagnitude, float rangeMagnitude,
+                                        List<Angle> angles, List<Long> footStrikeTimes, List<double[]> smoothedAcc) {
+        this.minimums = minimums;
+        this.maximums = maximums;
+        this.ranges = ranges;
+        this.minMagnitude = minMagnitude;
+        this.maxMagnitude = maxMagnitude;
+        this.rangeMagnitude = rangeMagnitude;
+        this.angles = angles;
+        this.footStrikeTimes = footStrikeTimes;
+        this.smoothedAcc = smoothedAcc;
     }
 
     public float[] getMinimums() {
@@ -73,6 +88,14 @@ public class AccelerometerOutputAnalytics {
 
     public void setFootStrikeTimes(List<Long> footStrikeTimes) {
         this.footStrikeTimes = footStrikeTimes;
+    }
+
+    public List<double[]> getSmoothedAcc() {
+        return smoothedAcc;
+    }
+
+    public void setSmoothedAcc(List<double[]> smoothedAcc) {
+        this.smoothedAcc = smoothedAcc;
     }
 
     public Document toDocument() {

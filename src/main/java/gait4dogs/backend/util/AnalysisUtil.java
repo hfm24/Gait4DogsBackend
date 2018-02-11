@@ -22,6 +22,9 @@ public class AnalysisUtil {
             accelerometerOutputAnalytics.add(doAccelerometerAnalytics(accelerometerOutput));
         }
 
+        if (accelerometerOutputAnalytics.size() == 2) {
+            comparePhaseShift(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
+        }
 
         return new SessionAnalytics(accelerometerOutputAnalytics);
     }
@@ -59,7 +62,7 @@ public class AnalysisUtil {
 
         AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges,
                 minMagnitude, maxMagnitude, rangeMagnitude,
-                angles, footStrikeTimes);
+                angles, footStrikeTimes, smoothedAcc);
         return AOA;
     }
 
@@ -182,6 +185,8 @@ public class AnalysisUtil {
 
     public List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
         List<Angle> output = new ArrayList<Angle>();
+
+
         long[] t = accelerometerOutput.getEpoc();
         float[] x = accelerometerOutput.getX();
         float[] y = accelerometerOutput.getY();
@@ -279,6 +284,27 @@ public class AnalysisUtil {
 
     private double magnitude(double x, double y, double z) {
         return (float)Math.sqrt(x*x+y*y+z*z);
+    }
+
+    private void comparePhaseShift(AccelerometerOutputAnalytics acc1, AccelerometerOutputAnalytics acc2) {
+        // To start, make sure accel. 1 and accel. 2 have the same number of datapoints and start and end at the same time:
+        // If accel. 1 started before accel. 2, add a buffer of 0's to the beginning of accel. 2
+            // else If accel. 2 started before accel. 1, add a buffer of 0's to the beginning of accel. 1
+        // If accel. 1 ended before accel. 2, add a buffer of 0's to the end of accel. 1
+            // else If accel. 2 ended before accel. 1, add a buffer of 0's to the end of accel. 2
+
+        // Now for the analysis:
+        // If accel. 1 has a higher range, use it as the control. Else use accel. 2
+        // Take 1/2 the period (mean dt between steps) of the control.
+        // If the control made the first step, add 1/2 period to each datapoint
+            // else subtract 1/2 period from each datapoint
+        // Compare the new control with the other accel:
+            // Get the difference between each datapoint and add all differences to find the area between both curves
+
+        // If the area is small, good.
+        // If the area is large, bad.
+
+        
     }
 }
 
