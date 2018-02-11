@@ -219,7 +219,7 @@ public class SessionController {
         List<Double> minList = (List<Double>)doc.get("minimums");
         List<Double> maxList = (List<Double>)doc.get("maximums");
         List<Double> rangesList = (List<Double>)doc.get("ranges");
-        List<Float> footStrikes = (List<Float>)doc.get("footStrikes");
+        List<Long> footStrikes = (List<Long>)doc.get("footStrikes");
         float[] minimums = new float[minList.size()];
         float[] maximums = new float[maxList.size()];
         float[] ranges = new float[rangesList.size()];

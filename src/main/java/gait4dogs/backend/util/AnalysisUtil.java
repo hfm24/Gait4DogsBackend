@@ -53,9 +53,9 @@ public class AnalysisUtil {
 
         List<Angle> angles = getAngles(accelerometerOutput);
 
-        List<float[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getElapsed());
+        List<double[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getEpoc());
 
-        List<Float> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
+        List<Long> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
 
         AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges,
                 minMagnitude, maxMagnitude, rangeMagnitude,
@@ -142,27 +142,27 @@ public class AnalysisUtil {
         return new float[]{minMagnitude,maxMagnitude,rangeMagnitude};
     }
 
-    public List<Float> getFootStrikeTimes(List<float[]> axisData) {
+    public List<Long> getFootStrikeTimes(List<double[]> axisData) {
         // Measuring mean distance between foot strikes
         List<Integer> footStrikes = getFootStrikes(axisData);
-        List<Float> footStrikeTimes = new ArrayList<>();
+        List<Long> footStrikeTimes = new ArrayList<>();
 
-        float sum = 0;
+        long sum = 0;
         int firstFootStrikeIdx = footStrikes.get(0);
-        float lastElapsed = axisData.get(firstFootStrikeIdx)[3];
-        footStrikeTimes.add(lastElapsed);
-        float currentElapsed;
-        float dt;
-        List<Float> dts = new ArrayList<>();
-        System.out.println(lastElapsed);
+        long lastEpoc = (long)axisData.get(firstFootStrikeIdx)[3];
+        footStrikeTimes.add(lastEpoc);
+        long currentEpoc;
+        long dt;
+        List<Long> dts = new ArrayList<>();
+        System.out.println(lastEpoc);
         for (int i = 1; i < footStrikes.size(); i++) {
             int elapsedTIdx = footStrikes.get(i);
-            currentElapsed = axisData.get(elapsedTIdx)[3];
-            footStrikeTimes.add(currentElapsed);
-            System.out.println(currentElapsed);
-            dt = currentElapsed - lastElapsed;
+            currentEpoc = (long)axisData.get(elapsedTIdx)[3];
+            footStrikeTimes.add(currentEpoc);
+            System.out.println(currentEpoc);
+            dt = currentEpoc - lastEpoc;
             dts.add(dt);
-            lastElapsed = currentElapsed;
+            lastEpoc = currentEpoc;
             sum += dt;
         }
         float avgDt = sum / dts.size();
@@ -182,7 +182,7 @@ public class AnalysisUtil {
 
     public List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
         List<Angle> output = new ArrayList<Angle>();
-        float[] t = accelerometerOutput.getElapsed();
+        long[] t = accelerometerOutput.getEpoc();
         float[] x = accelerometerOutput.getX();
         float[] y = accelerometerOutput.getY();
         float[] z = accelerometerOutput.getZ();
@@ -191,8 +191,8 @@ public class AnalysisUtil {
         float[] zRot = accelerometerOutput.getzAxis();
         float pitch = 0;
         float roll = 0;
-        List<float[]> smoothedAcc = averageSmooth(x, y, z, t);
-        List<float[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t);
+        List<double[]> smoothedAcc = averageSmooth(x, y, z, t);
+        List<double[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t);
 
         for (int i = 0; i < smoothedAcc.size(); i++) {
             //System.out.println(t[i*3] + ", " + smoothedAcc.get(i)[0] + ", " + smoothedAcc.get(i)[1] + ", " + smoothedAcc.get(i)[2]);
@@ -206,7 +206,7 @@ public class AnalysisUtil {
         return output;
     }
 
-    public Angle complementaryFilter(float[] accData, float[] rotData, float pitch, float roll, float dt) {
+    public Angle complementaryFilter(double[] accData, double[] rotData, float pitch, float roll, double dt) {
         float pitchAcc, rollAcc;
 
         // Integrate the gyroscope data -> int(angularSpeed) = angle
@@ -216,7 +216,7 @@ public class AnalysisUtil {
 
         // Compensate for drift with accelerometer data if !bullshit
         // Sensitivity = -2 to 2 G at 16Bit -> 2G = 32768 && 0.5G = 8192
-        float forceMagnitudeApprox = (accData[0]) + abs(accData[1]) + abs(accData[2]);
+        double forceMagnitudeApprox = (accData[0]) + abs(accData[1]) + abs(accData[2]);
         if (forceMagnitudeApprox > 0.5 && forceMagnitudeApprox < 2) {
             // Turning around the X axis results in a vector on the Y-axis
             pitchAcc = (float) (Math.atan2(accData[1], accData[2]) * 180 / Math.PI);
@@ -230,9 +230,9 @@ public class AnalysisUtil {
         return new Angle(pitch, roll);
     }
 
-    public List<float[]> averageSmooth(float[] x, float[] y, float[] z, float[] t) {
+    public List<double[]> averageSmooth(float[] x, float[] y, float[] z, long[] t) {
 
-        List<float[]> smoothedAccelerometerOutput = new ArrayList<>();
+        List<double[]> smoothedAccelerometerOutput = new ArrayList<>();
 
         float xSum = 0, ySum = 0, zSum = 0;
 
@@ -242,7 +242,7 @@ public class AnalysisUtil {
             zSum += z[i];
 
             if (i % 3 == 0) {
-                float[] averageList = new float[4];
+                double[] averageList = new double[4];
                 averageList[0] = xSum/3;
                 averageList[1] = ySum/3;
                 averageList[2] = zSum/3;
@@ -257,16 +257,16 @@ public class AnalysisUtil {
         return smoothedAccelerometerOutput;
     }
 
-    public List<Integer> getFootStrikes(List<float[]> accData) {
+    public List<Integer> getFootStrikes(List<double[]> accData) {
         float epsilon = 0.25f;
         List<Integer> peakStridePoints = new ArrayList<>();
-        float currentMagnitude;
-        float lastMagnitude;
-        float nextMagnitude;
+        double currentMagnitude;
+        double lastMagnitude;
+        double nextMagnitude;
         for (int i = 1; i < accData.size()-1; i++) {
-            float[] lastDataPoint = accData.get(i-1);
-            float[] dataPoint = accData.get(i);
-            float[] nextDataPoint = accData.get(i+1);
+            double[] lastDataPoint = accData.get(i-1);
+            double[] dataPoint = accData.get(i);
+            double[] nextDataPoint = accData.get(i+1);
             lastMagnitude = magnitude(lastDataPoint[0], lastDataPoint[1], lastDataPoint[2]);
             currentMagnitude = magnitude(dataPoint[0], dataPoint[1], dataPoint[2]);
             nextMagnitude = magnitude(nextDataPoint[0], nextDataPoint[1], nextDataPoint[2]);
@@ -277,7 +277,7 @@ public class AnalysisUtil {
         return peakStridePoints;
     }
 
-    private float magnitude(float x, float y, float z) {
+    private double magnitude(double x, double y, double z) {
         return (float)Math.sqrt(x*x+y*y+z*z);
     }
 }
