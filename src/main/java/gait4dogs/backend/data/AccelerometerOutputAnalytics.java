@@ -9,7 +9,7 @@ public class AccelerometerOutputAnalytics {
     private float[] minimums;
     private float[] maximums;
     private float[] ranges;
-    private List<Float> footStrikeTimes;
+    private List<Long> footStrikeTimes;
     private float minMagnitude, maxMagnitude, rangeMagnitude;
     private List<Angle> angles; // List of float arrays where each array contains single pitch and single roll
 
@@ -23,12 +23,12 @@ public class AccelerometerOutputAnalytics {
         this.maxMagnitude = maxMagnitude;
         this.rangeMagnitude = rangeMagnitude;
         this.angles = angles;
-        this.footStrikeTimes = new ArrayList<Float>();
+        this.footStrikeTimes = new ArrayList<Long>();
     }
 
     public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
                                         float minMagnitude, float maxMagnitude, float rangeMagnitude,
-                                        List<Angle> angles, List<Float> footStrikeTimes) {
+                                        List<Angle> angles, List<Long> footStrikeTimes) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
@@ -67,11 +67,11 @@ public class AccelerometerOutputAnalytics {
         return angles;
     }
 
-    public List<Float> getFootStrikeTimes() {
+    public List<Long> getFootStrikeTimes() {
         return footStrikeTimes;
     }
 
-    public void setFootStrikeTimes(List<Float> footStrikeTimes) {
+    public void setFootStrikeTimes(List<Long> footStrikeTimes) {
         this.footStrikeTimes = footStrikeTimes;
     }
 
