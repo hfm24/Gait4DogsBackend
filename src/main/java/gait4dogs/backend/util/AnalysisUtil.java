@@ -17,135 +17,167 @@ public class AnalysisUtil {
     }
 
     public SessionAnalytics doSessionAnalysis(SessionRawData rawData) {
-
-
-        //Finding the minimums
         List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics = new ArrayList<>();
         for (AccelerometerOutput accelerometerOutput : rawData.getAccelerometerOutputs()) {
-            List<float[]> axisData = new ArrayList<float[]>();
-            axisData.add(accelerometerOutput.getX());
-            axisData.add(accelerometerOutput.getY());
-            axisData.add(accelerometerOutput.getZ());
-
-            float[] minimums = new float[3];
-            for (int j = 0; j < 3; j++) {
-                float curr = 0;
-                float near = axisData.get(j)[0];
-                for (int i = 0; i < accelerometerOutput.getX().length; i++) {
-                    curr = axisData.get(j)[i] * axisData.get(j)[i];
-                    if (curr <= (near * near)) {
-                        near = axisData.get(j)[i];
-                    }
-                }
-                minimums[j] = near;
-            }
-
-
-            //Finding the Maximum Acceleration Values
-            float[] maximums = new float[3];
-            float[] x = Arrays.copyOf(accelerometerOutput.getX(), accelerometerOutput.getX().length);
-            float[] y = Arrays.copyOf(accelerometerOutput.getY(), accelerometerOutput.getY().length);
-            float[] z = Arrays.copyOf(accelerometerOutput.getZ(), accelerometerOutput.getZ().length);
-            Arrays.sort(x);
-            Arrays.sort(y);
-            Arrays.sort(z);
-
-            if(abs(x[0]) > x[x.length-1]){
-                maximums[0] = x[0];
-            }
-            else
-                maximums[0] = x[x.length-1];
-
-            if(abs(y[0]) > y[y.length-1]){
-                maximums[1] = y[0];
-            }
-            else
-                maximums[1] = y[y.length-1];
-
-
-            if(abs(z[0]) > z[z.length-1]){
-                maximums[2] = z[0];
-            }
-            else
-                maximums[2] = z[z.length-1];
-
-
-            float[] ranges = new float[3];
-            ranges[0] = maximums[0] - minimums[0];
-            ranges[1] = maximums[1] - minimums[1];
-            ranges[2] = maximums[2] - minimums[2];
-
-
-
-            //Finding the Magnitude
-            float maxMagnitude;
-            float minMagnitude;
-            float rangeMagnitude;
-
-            float[] magnitudes = new float[x.length];
-            for(int i = 0; i < x.length ; i++){
-                magnitudes[i] = (float) Math.sqrt((x[i] * x[i]) + (y[i] * y[i]) + (z[i] * z[i]));
-            }
-
-            maxMagnitude = magnitudes[0];
-            minMagnitude = magnitudes[0];
-
-            for (int i = 0; i < magnitudes.length; i++) {
-                if (maxMagnitude < magnitudes[i]) {
-                    maxMagnitude = magnitudes[i];
-                }
-                if (minMagnitude > magnitudes[i]) {
-                    minMagnitude = magnitudes[i];
-                }
-            }
-
-            rangeMagnitude = maxMagnitude - minMagnitude;
-
-            List<Angle> angles = getAngles(accelerometerOutput);
-
-            List<float[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ());
-
-            // Measuring mean distance between foot strikes
-            List<Integer> footStrikes = getFootStrikes(smoothedAcc);
-            List<Float> footStrikeTimes = new ArrayList<>();
-
-            float sum = 0;
-            int firstFootStrikeIdx = footStrikes.get(0);
-            float lastElapsed = accelerometerOutput.getElapsed()[firstFootStrikeIdx*3];
-            footStrikeTimes.add(lastElapsed);
-            float currentElapsed;
-            float dt;
-            List<Float> dts = new ArrayList<>();
-            System.out.println(lastElapsed);
-            for (int i = 1; i < footStrikes.size(); i++) {
-                int elapsedTIdx = footStrikes.get(i);
-                currentElapsed = accelerometerOutput.getElapsed()[elapsedTIdx*3];
-                footStrikeTimes.add(currentElapsed);
-                System.out.println(currentElapsed);
-                dt = currentElapsed - lastElapsed;
-                dts.add(dt);
-                lastElapsed = currentElapsed;
-                sum += dt;
-            }
-            float avgDt = sum / dts.size();
-
-            sum = 0;
-            for (int i = 1; i < dts.size(); i++) {
-                float sqrMean = (dts.get(i) - avgDt)*(dts.get(i) - avgDt);
-                sum += sqrMean;
-            }
-            float dtVariance = sum / (dts.size()-1);
-
-            System.out.println("average time between steps: " + avgDt);
-            System.out.println("variance of time between steps: " + dtVariance);
-            AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges,
-                    minMagnitude, maxMagnitude, rangeMagnitude,
-                    angles, footStrikeTimes);
-            accelerometerOutputAnalytics.add(AOA);
+            accelerometerOutputAnalytics.add(doAccelerometerAnalytics(accelerometerOutput));
         }
 
 
         return new SessionAnalytics(accelerometerOutputAnalytics);
+    }
+
+    public AccelerometerOutputAnalytics doAccelerometerAnalytics(AccelerometerOutput accelerometerOutput) {
+        List<float[]> axisData = new ArrayList<>();
+        axisData.add(accelerometerOutput.getX());
+        axisData.add(accelerometerOutput.getY());
+        axisData.add(accelerometerOutput.getZ());
+
+        float[] minimums = getMinimums(axisData);
+
+        float[] maximums = getMaximums(axisData);
+
+
+
+        float[] ranges = new float[3];
+        ranges[0] = maximums[0] - minimums[0];
+        ranges[1] = maximums[1] - minimums[1];
+        ranges[2] = maximums[2] - minimums[2];
+
+
+
+        //Finding the Magnitude
+        float[] magnitudes = getMagnitudes(axisData);
+        float minMagnitude = magnitudes[0];
+        float maxMagnitude = magnitudes[1];
+        float rangeMagnitude = magnitudes[2];
+
+        List<Angle> angles = getAngles(accelerometerOutput);
+
+        List<float[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getElapsed());
+
+        List<Float> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
+
+        AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges,
+                minMagnitude, maxMagnitude, rangeMagnitude,
+                angles, footStrikeTimes);
+        return AOA;
+    }
+
+    private float[] getMinimums(List<float[]> axisData) {
+        //Finding the minimums
+        float[] minimums = new float[3];
+        for (int j = 0; j < 3; j++) {
+            float curr = 0;
+            float near = axisData.get(j)[0];
+            for (int i = 0; i < axisData.get(0).length; i++) {
+                curr = axisData.get(j)[i] * axisData.get(j)[i];
+                if (curr <= (near * near)) {
+                    near = axisData.get(j)[i];
+                }
+            }
+            minimums[j] = near;
+        }
+        return minimums;
+    }
+
+    private float[] getMaximums(List<float[]> axisData) {
+        //Finding the Maximum Acceleration Values
+        float[] maximums = new float[3];
+        float[] x = Arrays.copyOf(axisData.get(0), axisData.get(0).length);
+        float[] y = Arrays.copyOf(axisData.get(1), axisData.get(1).length);
+        float[] z = Arrays.copyOf(axisData.get(2), axisData.get(2).length);
+        Arrays.sort(x);
+        Arrays.sort(y);
+        Arrays.sort(z);
+
+        if(abs(x[0]) > x[x.length-1]){
+            maximums[0] = x[0];
+        }
+        else
+            maximums[0] = x[x.length-1];
+
+        if(abs(y[0]) > y[y.length-1]){
+            maximums[1] = y[0];
+        }
+        else
+            maximums[1] = y[y.length-1];
+
+
+        if(abs(z[0]) > z[z.length-1]){
+            maximums[2] = z[0];
+        }
+        else
+            maximums[2] = z[z.length-1];
+
+        return maximums;
+    }
+
+    private float[] getMagnitudes(List<float[]> axisData) {
+        float maxMagnitude;
+        float minMagnitude;
+        float rangeMagnitude;
+
+        float[] x = axisData.get(0);
+        float[] y = axisData.get(1);
+        float[] z = axisData.get(2);
+        float[] magnitudes = new float[axisData.get(0).length];
+        for(int i = 0; i < x.length ; i++){
+            magnitudes[i] = (float) Math.sqrt((x[i] * x[i]) + (y[i] * y[i]) + (z[i] * z[i]));
+        }
+
+        maxMagnitude = magnitudes[0];
+        minMagnitude = magnitudes[0];
+
+        for (int i = 0; i < magnitudes.length; i++) {
+            if (maxMagnitude < magnitudes[i]) {
+                maxMagnitude = magnitudes[i];
+            }
+            if (minMagnitude > magnitudes[i]) {
+                minMagnitude = magnitudes[i];
+            }
+        }
+
+        rangeMagnitude = maxMagnitude - minMagnitude;
+
+        return new float[]{minMagnitude,maxMagnitude,rangeMagnitude};
+    }
+
+    public List<Float> getFootStrikeTimes(List<float[]> axisData) {
+        // Measuring mean distance between foot strikes
+        List<Integer> footStrikes = getFootStrikes(axisData);
+        List<Float> footStrikeTimes = new ArrayList<>();
+
+        float sum = 0;
+        int firstFootStrikeIdx = footStrikes.get(0);
+        float lastElapsed = axisData.get(firstFootStrikeIdx)[3];
+        footStrikeTimes.add(lastElapsed);
+        float currentElapsed;
+        float dt;
+        List<Float> dts = new ArrayList<>();
+        System.out.println(lastElapsed);
+        for (int i = 1; i < footStrikes.size(); i++) {
+            int elapsedTIdx = footStrikes.get(i);
+            currentElapsed = axisData.get(elapsedTIdx)[3];
+            footStrikeTimes.add(currentElapsed);
+            System.out.println(currentElapsed);
+            dt = currentElapsed - lastElapsed;
+            dts.add(dt);
+            lastElapsed = currentElapsed;
+            sum += dt;
+        }
+        float avgDt = sum / dts.size();
+
+        sum = 0;
+        for (int i = 1; i < dts.size(); i++) {
+            float sqrMean = (dts.get(i) - avgDt)*(dts.get(i) - avgDt);
+            sum += sqrMean;
+        }
+        float dtVariance = sum / (dts.size()-1);
+
+        System.out.println("average time between steps: " + avgDt);
+        System.out.println("variance of time between steps: " + dtVariance);
+
+        return footStrikeTimes;
     }
 
     public List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
@@ -159,8 +191,8 @@ public class AnalysisUtil {
         float[] zRot = accelerometerOutput.getzAxis();
         float pitch = 0;
         float roll = 0;
-        List<float[]> smoothedAcc = averageSmooth(x, y, z);
-        List<float[]> smoothedRot = averageSmooth(xRot, yRot, zRot);
+        List<float[]> smoothedAcc = averageSmooth(x, y, z, t);
+        List<float[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t);
 
         for (int i = 0; i < smoothedAcc.size(); i++) {
             //System.out.println(t[i*3] + ", " + smoothedAcc.get(i)[0] + ", " + smoothedAcc.get(i)[1] + ", " + smoothedAcc.get(i)[2]);
@@ -198,7 +230,7 @@ public class AnalysisUtil {
         return new Angle(pitch, roll);
     }
 
-    public List<float[]> averageSmooth(float[] x, float[] y, float[] z) {
+    public List<float[]> averageSmooth(float[] x, float[] y, float[] z, float[] t) {
 
         List<float[]> smoothedAccelerometerOutput = new ArrayList<>();
 
@@ -210,10 +242,11 @@ public class AnalysisUtil {
             zSum += z[i];
 
             if (i % 3 == 0) {
-                float[] averageList = new float[3];
+                float[] averageList = new float[4];
                 averageList[0] = xSum/3;
                 averageList[1] = ySum/3;
                 averageList[2] = zSum/3;
+                averageList[3] = t[i];
 
                 xSum = 0;
                 ySum = 0;
@@ -225,7 +258,7 @@ public class AnalysisUtil {
     }
 
     public List<Integer> getFootStrikes(List<float[]> accData) {
-        float epsilon = 0.3f;
+        float epsilon = 0.25f;
         List<Integer> peakStridePoints = new ArrayList<>();
         float currentMagnitude;
         float lastMagnitude;
