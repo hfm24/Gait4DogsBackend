@@ -355,23 +355,108 @@ public class AnalysisUtil {
         return (float)Math.sqrt(x*x+y*y+z*z);
     }
 
-    private void comparePhaseShift(AccelerometerOutputAnalytics acc1, AccelerometerOutputAnalytics acc2) {
+    private void comparePhaseShift(AccelerometerOutputAnalytics a, AccelerometerOutputAnalytics b) {
         // To start, make sure accel. 1 and accel. 2 have the same number of datapoints and start and end at the same time:
         // If accel. 1 started before accel. 2, add a buffer of 0's to the beginning of accel. 2
             // else If accel. 2 started before accel. 1, add a buffer of 0's to the beginning of accel. 1
         // If accel. 1 ended before accel. 2, add a buffer of 0's to the end of accel. 1
-            // else If accel. 2 ended before accel. 1, add a buffer of 0's to the end of accel. 2
 
         // Now for the analysis:
         // If accel. 1 has a higher range, use it as the control. Else use accel. 2
+        AccelerometerOutputAnalytics control;
+        AccelerometerOutputAnalytics compare;
+        if (a.getRangeMagnitude() > b.getRangeMagnitude()) {
+            control = a;
+            compare = b;
+        } else {
+            control = b;
+            compare = a;
+        }
         // Take 1/2 the period (mean dt between steps) of the control.
         // If the control made the first step, add 1/2 period to each datapoint
             // else subtract 1/2 period from each datapoint
+        double[] xA = control.getSmoothedAcc().get(0);
+        double[] yA = control.getSmoothedAcc().get(1);
+        double[] zA = control.getSmoothedAcc().get(2);
+        double[] magnitudesA = new double[xA.length];
+        double[] timesA = new double[xA.length];
+        double period = footStrikePeriod(control.getFootStrikeTimes());
+        if (control.getFootStrikeTimes().get(0) < compare.getFootStrikeTimes().get(0)) {
+            for (int i = 0; i < xA.length; i++) {
+                double magnitude = Math.sqrt(xA[i]*xA[i] + yA[i]*yA[i] + zA[i]*zA[i]);
+                double t = control.getSmoothedAcc().get(3)[i];
+                t += period/2;
+                magnitudesA[i] = magnitude;
+                timesA[i] = t;
+            }
+        } else {
+            for (int i = 0; i < xA.length; i++) {
+                double magnitude = Math.sqrt(xA[i]*xA[i] + yA[i]*yA[i] + zA[i]*zA[i]);
+                double t = control.getSmoothedAcc().get(3)[i];
+                t -= period/2;
+                magnitudesA[i] = magnitude;
+                timesA[i] = t;
+            }
+        }
+
+        double[] xB = compare.getSmoothedAcc().get(0);
+        double[] yB = compare.getSmoothedAcc().get(1);
+        double[] zB = compare.getSmoothedAcc().get(2);
+        double[] timesB = compare.getSmoothedAcc().get(3);
+        double[] magnitudesB = new double[xB.length];
+        for (int i = 0; i < magnitudesB.length; i++) {
+            double magnitude = Math.sqrt(xB[i]*xB[i]+yB[i]*yB[i]+zB[i]*zB[i]);
+            magnitudesB[i] = magnitude;
+        }
+
         // Compare the new control with the other accel:
             // Get the difference between each datapoint and add all differences to find the area between both curves
+        double totalDif = 0;
+        for (int i = 0; i < magnitudesA.length; i++) {
+            double dif;
+            dif = getMagnitudeDifAtClosestTime(magnitudesA[i], timesA[i], magnitudesB, timesB);
+            totalDif += dif;
+        }
+        double avgDif = totalDif / magnitudesA.length;
 
+        System.out.println("Total difference in phase-shifted curves: " + totalDif);
+        System.out.println("Average difference in phase-shifted curves: " + avgDif);
         // If the area is small, good.
         // If the area is large, bad.
+    }
+
+    private double footStrikePeriod(List<Long> footStrikeTimes) {
+        long sum = 0;
+        long lastEpoc = (long)footStrikeTimes.get(0);
+        footStrikeTimes.add(lastEpoc);
+        long currentEpoc;
+        long dt;
+        List<Long> dts = new ArrayList<>();
+        for (int i = 1; i < footStrikeTimes.size(); i++) {
+            currentEpoc = footStrikeTimes.get(i);
+            dt = currentEpoc - lastEpoc;
+            dts.add(dt);
+            lastEpoc = currentEpoc;
+            sum += dt;
+        }
+        float avgDt = sum / dts.size();
+
+        return avgDt;
+    }
+
+    private double getMagnitudeDifAtClosestTime(double mag, double t, double[] b, double[] tb) {
+        double lastTDif = Double.POSITIVE_INFINITY;
+        double tDif;
+        double magDif = 0;
+        for (int i = 0; i < b.length; i++) {
+            tDif = tb[i] - t;
+            if (tDif > lastTDif)
+                break;
+            magDif = Math.abs(mag - b[i]);
+            lastTDif = tDif;
+        }
+
+        return magDif;
     }
 }
 

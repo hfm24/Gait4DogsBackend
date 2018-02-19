@@ -25,4 +25,13 @@ public class SessionAnalytics {
 
         return doc;
     }
+
+    public static SessionAnalytics toSessionAnalytics(Document doc) {
+        List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics = new ArrayList<>();
+        ArrayList<Document> analytics = (ArrayList<Document>)doc.get("accelerometerOutputAnalytics");
+        for (Document accelOutputAnalyticsDoc : analytics) {
+            accelerometerOutputAnalytics.add(AccelerometerOutputAnalytics.toAccelerometerOuptutAnalytics(accelOutputAnalyticsDoc));
+        }
+        return new SessionAnalytics(accelerometerOutputAnalytics);
+    }
 }
