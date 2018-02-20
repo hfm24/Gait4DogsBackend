@@ -23,7 +23,10 @@ public class AnalysisUtil {
         }
 
         if (accelerometerOutputAnalytics.size() == 2) {
-            comparePhaseShift(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
+            List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
+            comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
+            accelerometerOutputAnalytics.get(0).setShiftedMagnitudes(shiftedMagnitudes.get(0));
+            accelerometerOutputAnalytics.get(1).setShiftedMagnitudes(shiftedMagnitudes.get(1));
         }
 
         return new SessionAnalytics(accelerometerOutputAnalytics);
@@ -355,13 +358,31 @@ public class AnalysisUtil {
         return (float)Math.sqrt(x*x+y*y+z*z);
     }
 
-    private void comparePhaseShift(AccelerometerOutputAnalytics a, AccelerometerOutputAnalytics b) {
-        // To start, make sure accel. 1 and accel. 2 have the same number of datapoints and start and end at the same time:
-        // If accel. 1 started before accel. 2, add a buffer of 0's to the beginning of accel. 2
-            // else If accel. 2 started before accel. 1, add a buffer of 0's to the beginning of accel. 1
-        // If accel. 1 ended before accel. 2, add a buffer of 0's to the end of accel. 1
+    private void comparePhaseShift(List<double[]> a, List<double[]> b) {
+        double[] magnitudesA = a.get(0);
+        double[] timesA = a.get(1);
 
-        // Now for the analysis:
+        double[] magnitudesB = b.get(0);
+        double[] timesB = b.get(0);
+
+        // Get the difference between each datapoint and add all differences to find the area between both curves
+        double totalDif = 0;
+        for (int i = 0; i < magnitudesA.length; i++) {
+            double dif;
+            dif = getMagnitudeDifAtClosestTime(magnitudesA[i], timesA[i], magnitudesB, timesB);
+            totalDif += dif;
+        }
+        double avgDif = totalDif / magnitudesA.length;
+
+        System.out.println("Total difference in phase-shifted curves: " + totalDif);
+        System.out.println("Average difference in phase-shifted curves: " + avgDif);
+        // If the area is small, good.
+        // If the area is large, bad.
+
+
+    }
+
+    private List<List<double[]>> getShiftedMagnitudes(AccelerometerOutputAnalytics a, AccelerometerOutputAnalytics b) {
         // If accel. 1 has a higher range, use it as the control. Else use accel. 2
         AccelerometerOutputAnalytics control;
         AccelerometerOutputAnalytics compare;
@@ -372,9 +393,10 @@ public class AnalysisUtil {
             control = b;
             compare = a;
         }
+
         // Take 1/2 the period (mean dt between steps) of the control.
         // If the control made the first step, add 1/2 period to each datapoint
-            // else subtract 1/2 period from each datapoint
+        // else subtract 1/2 period from each datapoint
         double[] xA = control.getSmoothedAcc().get(0);
         double[] yA = control.getSmoothedAcc().get(1);
         double[] zA = control.getSmoothedAcc().get(2);
@@ -409,20 +431,25 @@ public class AnalysisUtil {
             magnitudesB[i] = magnitude;
         }
 
-        // Compare the new control with the other accel:
-            // Get the difference between each datapoint and add all differences to find the area between both curves
-        double totalDif = 0;
-        for (int i = 0; i < magnitudesA.length; i++) {
-            double dif;
-            dif = getMagnitudeDifAtClosestTime(magnitudesA[i], timesA[i], magnitudesB, timesB);
-            totalDif += dif;
-        }
-        double avgDif = totalDif / magnitudesA.length;
+        List<double[]> shiftedMagnitudesA = new ArrayList<>();
+        List<double[]> shiftedMagnitudesB = new ArrayList<>();
 
-        System.out.println("Total difference in phase-shifted curves: " + totalDif);
-        System.out.println("Average difference in phase-shifted curves: " + avgDif);
-        // If the area is small, good.
-        // If the area is large, bad.
+        if (a.getRangeMagnitude() > b.getRangeMagnitude()) {
+            shiftedMagnitudesA.add(magnitudesA);
+            shiftedMagnitudesA.add(timesA);
+            shiftedMagnitudesB.add(magnitudesB);
+            shiftedMagnitudesB.add(timesB);
+        } else {
+            shiftedMagnitudesA.add(magnitudesB);
+            shiftedMagnitudesA.add(timesB);
+            shiftedMagnitudesB.add(magnitudesA);
+            shiftedMagnitudesB.add(timesA);
+        }
+
+        List<List<double[]>> shiftedMagnitudes = new ArrayList<>();
+        shiftedMagnitudes.add(shiftedMagnitudesA);
+        shiftedMagnitudes.add(shiftedMagnitudesB);
+        return shiftedMagnitudes;
     }
 
     private double footStrikePeriod(List<Long> footStrikeTimes) {
