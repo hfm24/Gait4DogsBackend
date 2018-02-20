@@ -44,7 +44,7 @@ public class AccelerometerOutputAnalytics {
     public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
                                         float minMagnitude, float maxMagnitude, float rangeMagnitude,
                                         List<Angle> angles, List<Long> footStrikeTimes,
-                                        List<double[]> shiftedMagnitudes) {
+                                        List<double[]> smoothedAcc) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
@@ -53,6 +53,22 @@ public class AccelerometerOutputAnalytics {
         this.rangeMagnitude = rangeMagnitude;
         this.angles = angles;
         this.footStrikeTimes = footStrikeTimes;
+        this.smoothedAcc = smoothedAcc;
+    }
+
+    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+                                        float minMagnitude, float maxMagnitude, float rangeMagnitude,
+                                        List<Angle> angles, List<Long> footStrikeTimes,
+                                        List<double[]> smoothedAcc, List<double[]> shiftedMagnitudes) {
+        this.minimums = minimums;
+        this.maximums = maximums;
+        this.ranges = ranges;
+        this.minMagnitude = minMagnitude;
+        this.maxMagnitude = maxMagnitude;
+        this.rangeMagnitude = rangeMagnitude;
+        this.angles = angles;
+        this.footStrikeTimes = footStrikeTimes;
+        this.smoothedAcc = smoothedAcc;
         this.shiftedMagnitudes = shiftedMagnitudes;
     }
 
@@ -178,6 +194,6 @@ public class AccelerometerOutputAnalytics {
 
         return new AccelerometerOutputAnalytics(minimums, maximums, ranges,
                 minMagnitude, maxMagnitude, rangeMagnitude,
-                angles, footStrikes, shiftedMagnitudes);
+                angles, footStrikes, null, shiftedMagnitudes);
     }
 }
