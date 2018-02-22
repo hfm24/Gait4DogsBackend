@@ -22,14 +22,17 @@ public class AnalysisUtil {
             accelerometerOutputAnalytics.add(doAccelerometerAnalytics(accelerometerOutput));
         }
 
+        List<Double> phaseShiftDifs = new ArrayList<>();
         if (accelerometerOutputAnalytics.size() == 2) {
             List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
-            comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
+            phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
             accelerometerOutputAnalytics.get(0).setShiftedMagnitudes(shiftedMagnitudes.get(0));
             accelerometerOutputAnalytics.get(1).setShiftedMagnitudes(shiftedMagnitudes.get(1));
+            return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
         }
-
-        return new SessionAnalytics(accelerometerOutputAnalytics);
+        else {
+            return new SessionAnalytics(accelerometerOutputAnalytics);
+        }
     }
 
     public AccelerometerOutputAnalytics doAccelerometerAnalytics(AccelerometerOutput accelerometerOutput) {
@@ -358,7 +361,8 @@ public class AnalysisUtil {
         return (float)Math.sqrt(x*x+y*y+z*z);
     }
 
-    private void comparePhaseShift(List<double[]> a, List<double[]> b) {
+    private List<Double> comparePhaseShift(List<double[]> a, List<double[]> b) {
+        List<Double> phaseShiftDifs = new ArrayList<>();
         double[] magnitudesA = a.get(0);
         double[] timesA = a.get(1);
 
@@ -374,12 +378,15 @@ public class AnalysisUtil {
         }
         double avgDif = totalDif / magnitudesA.length;
 
+        phaseShiftDifs.add(totalDif);
+        phaseShiftDifs.add(avgDif);
+
         System.out.println("Total difference in phase-shifted curves: " + totalDif);
         System.out.println("Average difference in phase-shifted curves: " + avgDif);
         // If the area is small, good.
         // If the area is large, bad.
 
-
+        return phaseShiftDifs;
     }
 
     private List<List<double[]>> getShiftedMagnitudes(AccelerometerOutputAnalytics a, AccelerometerOutputAnalytics b) {
