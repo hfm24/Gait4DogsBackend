@@ -14,6 +14,7 @@ public class AccelerometerOutputAnalytics {
     private List<Angle> angles; // List of float arrays where each array contains single pitch and single roll
     private List<double[]> smoothedAcc;
     private List<double[]> shiftedMagnitudes;
+    private List<Long> shiftedFootStrikeTimes;
 
     public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
                                         float minMagnitude, float maxMagnitude, float rangeMagnitude,
@@ -59,7 +60,8 @@ public class AccelerometerOutputAnalytics {
     public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
                                         float minMagnitude, float maxMagnitude, float rangeMagnitude,
                                         List<Angle> angles, List<Long> footStrikeTimes,
-                                        List<double[]> smoothedAcc, List<double[]> shiftedMagnitudes) {
+                                        List<double[]> smoothedAcc, List<double[]> shiftedMagnitudes,
+                                        List<Long> shiftedFootStrikeTimes) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
@@ -70,6 +72,7 @@ public class AccelerometerOutputAnalytics {
         this.footStrikeTimes = footStrikeTimes;
         this.smoothedAcc = smoothedAcc;
         this.shiftedMagnitudes = shiftedMagnitudes;
+        this.shiftedFootStrikeTimes = shiftedFootStrikeTimes;
     }
 
     public float[] getMinimums() {
@@ -124,6 +127,14 @@ public class AccelerometerOutputAnalytics {
         this.shiftedMagnitudes = shiftedMagnitudes;
     }
 
+    public List<Long> getShiftedFootStrikeTimes() {
+        return shiftedFootStrikeTimes;
+    }
+
+    public void setShiftedFootStrikeTimes(List<Long> shiftedFootStrikeTimes) {
+        this.shiftedFootStrikeTimes = shiftedFootStrikeTimes;
+    }
+
     public Document toDocument() {
         List<Float> minList = new ArrayList<>();
         List<Float> maxList = new ArrayList<>();
@@ -156,7 +167,8 @@ public class AccelerometerOutputAnalytics {
                 .append("rangeMagnitude", rangeMagnitude)
                 .append("angles", angleDocs)
                 .append("footStrikes", footStrikeTimes)
-                .append("shiftedMagnitudes", shiftedMagnitudesDoc);
+                .append("shiftedMagnitudes", shiftedMagnitudesDoc)
+                .append("shiftedFootStrikes", shiftedFootStrikeTimes);
 
         return doc;
     }
@@ -166,6 +178,7 @@ public class AccelerometerOutputAnalytics {
         List<Double> maxList = (List<Double>)doc.get("maximums");
         List<Double> rangesList = (List<Double>)doc.get("ranges");
         List<Long> footStrikes = (List<Long>)doc.get("footStrikes");
+        List<Long> shiftedFootStrikes = (List<Long>)doc.get("shiftedFootStrikes");
         float[] minimums = new float[minList.size()];
         float[] maximums = new float[maxList.size()];
         float[] ranges = new float[rangesList.size()];
@@ -194,6 +207,6 @@ public class AccelerometerOutputAnalytics {
 
         return new AccelerometerOutputAnalytics(minimums, maximums, ranges,
                 minMagnitude, maxMagnitude, rangeMagnitude,
-                angles, footStrikes, null, shiftedMagnitudes);
+                angles, footStrikes, null, shiftedMagnitudes, shiftedFootStrikes);
     }
 }

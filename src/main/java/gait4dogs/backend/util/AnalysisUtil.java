@@ -22,12 +22,9 @@ public class AnalysisUtil {
             accelerometerOutputAnalytics.add(doAccelerometerAnalytics(accelerometerOutput));
         }
 
-        List<Double> phaseShiftDifs = new ArrayList<>();
         if (accelerometerOutputAnalytics.size() == 2) {
             List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
-            phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
-            accelerometerOutputAnalytics.get(0).setShiftedMagnitudes(shiftedMagnitudes.get(0));
-            accelerometerOutputAnalytics.get(1).setShiftedMagnitudes(shiftedMagnitudes.get(1));
+            List<Double> phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
             return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
         }
         else {
@@ -363,20 +360,20 @@ public class AnalysisUtil {
 
     private List<Double> comparePhaseShift(List<double[]> a, List<double[]> b) {
         List<Double> phaseShiftDifs = new ArrayList<>();
-        double[] magnitudesA = a.get(0);
-        double[] timesA = a.get(1);
+        double[] magnitudesControl = a.get(0);
+        double[] timesControl = a.get(1);
 
-        double[] magnitudesB = b.get(0);
-        double[] timesB = b.get(0);
+        double[] magnitudesCompare = b.get(0);
+        double[] timesCompare = b.get(0);
 
         // Get the difference between each datapoint and add all differences to find the area between both curves
         double totalDif = 0;
-        for (int i = 0; i < magnitudesA.length; i++) {
+        for (int i = 0; i < magnitudesControl.length; i++) {
             double dif;
-            dif = getMagnitudeDifAtClosestTime(magnitudesA[i], timesA[i], magnitudesB, timesB);
+            dif = getMagnitudeDifAtClosestTime(magnitudesControl[i], timesControl[i], magnitudesCompare, timesCompare);
             totalDif += dif;
         }
-        double avgDif = totalDif / magnitudesA.length;
+        double avgDif = totalDif / magnitudesControl.length;
 
         phaseShiftDifs.add(totalDif);
         phaseShiftDifs.add(avgDif);
@@ -407,62 +404,65 @@ public class AnalysisUtil {
         double[] xA = control.getSmoothedAcc().get(0);
         double[] yA = control.getSmoothedAcc().get(1);
         double[] zA = control.getSmoothedAcc().get(2);
-        double[] magnitudesA = new double[xA.length];
-        double[] timesA = new double[xA.length];
+        double[] magnitudesControl = new double[xA.length];
+        double[] timesControl = new double[xA.length];
+        List<Long> shiftedFootStrikesControl = new ArrayList<>();
         double period = footStrikePeriod(control.getFootStrikeTimes());
         if (control.getFootStrikeTimes().get(0) < compare.getFootStrikeTimes().get(0)) {
             for (int i = 0; i < xA.length; i++) {
                 double magnitude = Math.sqrt(xA[i]*xA[i] + yA[i]*yA[i] + zA[i]*zA[i]);
                 double t = control.getSmoothedAcc().get(3)[i];
                 t += period/2;
-                magnitudesA[i] = magnitude;
-                timesA[i] = t;
+                magnitudesControl[i] = magnitude;
+                timesControl[i] = t;
+            }
+            for (int i = 0; i < control.getFootStrikeTimes().size(); i++) {
+                shiftedFootStrikesControl.add(control.getFootStrikeTimes().get(i) + Math.round(period/2));
             }
         } else {
             for (int i = 0; i < xA.length; i++) {
                 double magnitude = Math.sqrt(xA[i]*xA[i] + yA[i]*yA[i] + zA[i]*zA[i]);
                 double t = control.getSmoothedAcc().get(3)[i];
                 t -= period/2;
-                magnitudesA[i] = magnitude;
-                timesA[i] = t;
+                magnitudesControl[i] = magnitude;
+                timesControl[i] = t;
+            }
+            for (int i = 0; i < control.getFootStrikeTimes().size(); i++) {
+                shiftedFootStrikesControl.add(control.getFootStrikeTimes().get(i) - Math.round(period/2));
             }
         }
 
         double[] xB = compare.getSmoothedAcc().get(0);
         double[] yB = compare.getSmoothedAcc().get(1);
         double[] zB = compare.getSmoothedAcc().get(2);
-        double[] timesB = compare.getSmoothedAcc().get(3);
-        double[] magnitudesB = new double[xB.length];
-        for (int i = 0; i < magnitudesB.length; i++) {
+        double[] timesCompare = compare.getSmoothedAcc().get(3);
+        double[] magnitudesCompare = new double[xB.length];
+        for (int i = 0; i < magnitudesCompare.length; i++) {
             double magnitude = Math.sqrt(xB[i]*xB[i]+yB[i]*yB[i]+zB[i]*zB[i]);
-            magnitudesB[i] = magnitude;
+            magnitudesCompare[i] = magnitude;
         }
 
-        List<double[]> shiftedMagnitudesA = new ArrayList<>();
-        List<double[]> shiftedMagnitudesB = new ArrayList<>();
+        List<double[]> shiftedMagnitudesControl = new ArrayList<>();
+        List<double[]> shiftedMagnitudesCompare = new ArrayList<>();
 
-        if (a.getRangeMagnitude() > b.getRangeMagnitude()) {
-            shiftedMagnitudesA.add(magnitudesA);
-            shiftedMagnitudesA.add(timesA);
-            shiftedMagnitudesB.add(magnitudesB);
-            shiftedMagnitudesB.add(timesB);
-        } else {
-            shiftedMagnitudesA.add(magnitudesB);
-            shiftedMagnitudesA.add(timesB);
-            shiftedMagnitudesB.add(magnitudesA);
-            shiftedMagnitudesB.add(timesA);
-        }
+        shiftedMagnitudesControl.add(magnitudesControl);
+        shiftedMagnitudesControl.add(timesControl);
+        shiftedMagnitudesCompare.add(magnitudesCompare);
+        shiftedMagnitudesCompare.add(timesCompare);
+        control.setShiftedMagnitudes(shiftedMagnitudesControl);
+        control.setShiftedFootStrikeTimes(shiftedFootStrikesControl);
+        compare.setShiftedMagnitudes(shiftedMagnitudesCompare);
+        compare.setShiftedFootStrikeTimes(compare.getFootStrikeTimes());
 
         List<List<double[]>> shiftedMagnitudes = new ArrayList<>();
-        shiftedMagnitudes.add(shiftedMagnitudesA);
-        shiftedMagnitudes.add(shiftedMagnitudesB);
+        shiftedMagnitudes.add(shiftedMagnitudesControl);
+        shiftedMagnitudes.add(shiftedMagnitudesCompare);
         return shiftedMagnitudes;
     }
 
     private double footStrikePeriod(List<Long> footStrikeTimes) {
         long sum = 0;
         long lastEpoc = (long)footStrikeTimes.get(0);
-        footStrikeTimes.add(lastEpoc);
         long currentEpoc;
         long dt;
         List<Long> dts = new ArrayList<>();
