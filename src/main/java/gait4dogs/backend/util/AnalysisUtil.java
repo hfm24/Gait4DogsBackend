@@ -71,11 +71,11 @@ public class AnalysisUtil {
 
     private float[] getMinimums(List<float[]> axisData) {
         //Finding the minimums
-        float[] minimums = new float[3];
-        for (int j = 0; j < 3; j++) {
+        float[] minimums = new float[axisData.size()];
+        for (int j = 0; j < axisData.size(); j++) {
             float curr = 0;
             float near = axisData.get(j)[0];
-            for (int i = 0; i < axisData.get(0).length; i++) {
+            for (int i = 0; i < axisData.get(j).length; i++) {
                 curr = axisData.get(j)[i] * axisData.get(j)[i];
                 if (curr <= (near * near)) {
                     near = axisData.get(j)[i];
@@ -88,33 +88,18 @@ public class AnalysisUtil {
 
     private float[] getMaximums(List<float[]> axisData) {
         //Finding the Maximum Acceleration Values
-        float[] maximums = new float[3];
-        float[] x = Arrays.copyOf(axisData.get(0), axisData.get(0).length);
-        float[] y = Arrays.copyOf(axisData.get(1), axisData.get(1).length);
-        float[] z = Arrays.copyOf(axisData.get(2), axisData.get(2).length);
-        Arrays.sort(x);
-        Arrays.sort(y);
-        Arrays.sort(z);
-
-        if(abs(x[0]) > x[x.length-1]){
-            maximums[0] = x[0];
+        float[] maximums = new float[axisData.size()];
+        for (int j = 0; j < axisData.size(); j++) {
+            float curr = 0;
+            float near = (float)Double.NEGATIVE_INFINITY;
+            for (int i = 0; i < axisData.get(j).length; i++) {
+                curr = axisData.get(j)[i] * axisData.get(j)[i];
+                if (curr > (near * near)) {
+                    near = axisData.get(j)[i];
+                }
+            }
+            maximums[j] = near;
         }
-        else
-            maximums[0] = x[x.length-1];
-
-        if(abs(y[0]) > y[y.length-1]){
-            maximums[1] = y[0];
-        }
-        else
-            maximums[1] = y[y.length-1];
-
-
-        if(abs(z[0]) > z[z.length-1]){
-            maximums[2] = z[0];
-        }
-        else
-            maximums[2] = z[z.length-1];
-
         return maximums;
     }
 
