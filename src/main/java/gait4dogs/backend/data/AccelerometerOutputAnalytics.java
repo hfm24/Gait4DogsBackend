@@ -6,16 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AccelerometerOutputAnalytics {
-    private float[] minimums;
-    private float[] maximums;
-    private float[] ranges;
+    private double[] minimums;
+    private double[] maximums;
+    private double[] ranges;
     private List<Long> footStrikeTimes;
-    private List<Angle> angles; // List of float arrays where each array contains single pitch and single roll
+    private List<Angle> angles; // List of double arrays where each array contains single pitch and single roll
     private List<double[]> smoothedAcc;
     private List<double[]> shiftedMagnitudes;
     private List<Long> shiftedFootStrikeTimes;
 
-    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+    public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles) {
         this.minimums = minimums;
         this.maximums = maximums;
@@ -24,7 +24,7 @@ public class AccelerometerOutputAnalytics {
         this.footStrikeTimes = new ArrayList<Long>();
     }
 
-    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+    public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles, List<Long> footStrikeTimes) {
         this.minimums = minimums;
         this.maximums = maximums;
@@ -33,7 +33,7 @@ public class AccelerometerOutputAnalytics {
         this.footStrikeTimes = footStrikeTimes;
     }
 
-    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+    public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles, List<Long> footStrikeTimes,
                                         List<double[]> smoothedAcc) {
         this.minimums = minimums;
@@ -44,7 +44,7 @@ public class AccelerometerOutputAnalytics {
         this.smoothedAcc = smoothedAcc;
     }
 
-    public AccelerometerOutputAnalytics(float[] minimums, float[] maximums, float[] ranges,
+    public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles, List<Long> footStrikeTimes,
                                         List<double[]> smoothedAcc, List<double[]> shiftedMagnitudes,
                                         List<Long> shiftedFootStrikeTimes) {
@@ -58,15 +58,15 @@ public class AccelerometerOutputAnalytics {
         this.shiftedFootStrikeTimes = shiftedFootStrikeTimes;
     }
 
-    public float[] getMinimums() {
+    public double[] getMinimums() {
         return minimums;
     }
 
-    public float[] getMaximums() {
+    public double[] getMaximums() {
         return maximums;
     }
 
-    public float[] getRanges() {
+    public double[] getRanges() {
         return ranges;
     }
 
@@ -107,9 +107,9 @@ public class AccelerometerOutputAnalytics {
     }
 
     public Document toDocument() {
-        List<Float> minList = new ArrayList<>();
-        List<Float> maxList = new ArrayList<>();
-        List<Float> rangeList = new ArrayList<>();
+        List<Double> minList = new ArrayList<>();
+        List<Double> maxList = new ArrayList<>();
+        List<Double> rangeList = new ArrayList<>();
         for (int i = 0; i < minimums.length; i++) {
             minList.add(minimums[i]);
             maxList.add(maximums[i]);
@@ -147,13 +147,13 @@ public class AccelerometerOutputAnalytics {
         List<Double> rangesList = (List<Double>)doc.get("ranges");
         List<Long> footStrikes = (List<Long>)doc.get("footStrikes");
         List<Long> shiftedFootStrikes = (List<Long>)doc.get("shiftedFootStrikes");
-        float[] minimums = new float[minList.size()];
-        float[] maximums = new float[maxList.size()];
-        float[] ranges = new float[rangesList.size()];
+        double[] minimums = new double[minList.size()];
+        double[] maximums = new double[maxList.size()];
+        double[] ranges = new double[rangesList.size()];
         for (int i = 0; i < minimums.length; i++) {
-            minimums[i] = minList.get(i).floatValue();
-            maximums[i] = maxList.get(i).floatValue();
-            ranges[i] = rangesList.get(i).floatValue();
+            minimums[i] = minList.get(i).doubleValue();
+            maximums[i] = maxList.get(i).doubleValue();
+            ranges[i] = rangesList.get(i).doubleValue();
         }
         List<Angle> angles = (List<Angle>)doc.get("angles");
 

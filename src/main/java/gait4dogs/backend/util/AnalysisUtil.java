@@ -33,18 +33,18 @@ public class AnalysisUtil {
     }
 
     public AccelerometerOutputAnalytics doAccelerometerAnalytics(AccelerometerOutput accelerometerOutput) {
-        List<float[]> axisData = new ArrayList<>();
+        List<double[]> axisData = new ArrayList<>();
         axisData.add(accelerometerOutput.getX());
         axisData.add(accelerometerOutput.getY());
         axisData.add(accelerometerOutput.getZ());
 
-        float[] minimums = MathUtil.getMinimums(axisData);
+        double[] minimums = MathUtil.getMinimums(axisData);
 
-        float[] maximums = MathUtil.getMaximums(axisData);
+        double[] maximums = MathUtil.getMaximums(axisData);
 
 
 
-        float[] ranges = new float[3];
+        double[] ranges = new double[3];
         ranges[0] = maximums[0] - minimums[0];
         ranges[1] = maximums[1] - minimums[1];
         ranges[2] = maximums[2] - minimums[2];
@@ -222,9 +222,12 @@ public class AnalysisUtil {
         // If accel. 1 has a higher range, use it as the control. Else use accel. 2
         AccelerometerOutputAnalytics control;
         AccelerometerOutputAnalytics compare;
+        double[] aMagnitudes = MathUtil.getMagnitudes(a.getSmoothedAcc());
+        double[] bMagnitudes = MathUtil.getMagnitudes(b.getSmoothedAcc());
+        double aRange = MathUtil.maximum(aMagnitudes) - MathUtil.minimum(aMagnitudes);
+        double bRange = MathUtil.maximum(bMagnitudes) - MathUtil.minimum(bMagnitudes);
 
-
-        if (a.getRangeMagnitude() > b.getRangeMagnitude()) {
+        if (aRange > bRange) {
             control = a;
             compare = b;
         } else {

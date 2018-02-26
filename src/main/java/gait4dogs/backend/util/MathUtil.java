@@ -9,51 +9,59 @@ import java.util.List;
 public class MathUtil {
 
 
-    public static float[] getMinimums(List<float[]> axisData) {
+    public static double[] getMinimums(List<double[]> axisData) {
         //Finding the minimums
-        float[] minimums = new float[axisData.size()];
+        double[] minimums = new double[axisData.size()];
         for (int j = 0; j < axisData.size(); j++) {
-            float curr = 0;
-            float near = axisData.get(j)[0];
-            for (int i = 0; i < axisData.get(j).length; i++) {
-                curr = axisData.get(j)[i] * axisData.get(j)[i];
-                if (curr <= (near * near)) {
-                    near = axisData.get(j)[i];
-                }
-            }
-            minimums[j] = near;
+            double min = minimum(axisData.get(j));
+            minimums[j] = min;
         }
         return minimums;
     }
 
-    public static float[] getMaximums(List<float[]> axisData) {
+    public static double[] getMaximums(List<double[]> axisData) {
         //Finding the Maximum Acceleration Values
-        float[] maximums = new float[axisData.size()];
+        double[] maximums = new double[axisData.size()];
         for (int j = 0; j < axisData.size(); j++) {
-            float curr = 0;
-            float near = (float)Double.NEGATIVE_INFINITY;
-            for (int i = 0; i < axisData.get(j).length; i++) {
-                curr = axisData.get(j)[i] * axisData.get(j)[i];
-                if (curr > (near * near)) {
-                    near = axisData.get(j)[i];
-                }
-            }
-            maximums[j] = near;
+            double max = maximum(axisData.get(j));
+            maximums[j] = max;
         }
         return maximums;
+    }
+
+    public static double maximum(double[] data) {
+        double max = data[0];
+        for (int i = 0; i < data.length; i++) {
+            double curr = data[i] * data[i];
+            if (curr > (max * max)) {
+                max = data[i];
+            }
+        }
+        return max;
+    }
+
+    public static double minimum(double[] data) {
+        double min = data[0];
+        for (int i = 0; i < data.length; i++) {
+            double curr = data[i] * data[i];
+            if (curr <= (min * min)) {
+                min = data[i];
+            }
+        }
+        return min;
     }
 
     public static List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
         List<Angle> output = new ArrayList<Angle>();
         long[] t = accelerometerOutput.getEpoc();
-        float[] x = accelerometerOutput.getX();
-        float[] y = accelerometerOutput.getY();
-        float[] z = accelerometerOutput.getZ();
-        float[] xRot = accelerometerOutput.getxAxis();
-        float[] yRot = accelerometerOutput.getyAxis();
-        float[] zRot = accelerometerOutput.getzAxis();
-        float pitch = 0;
-        float roll = 0;
+        double[] x = accelerometerOutput.getX();
+        double[] y = accelerometerOutput.getY();
+        double[] z = accelerometerOutput.getZ();
+        double[] xRot = accelerometerOutput.getxAxis();
+        double[] yRot = accelerometerOutput.getyAxis();
+        double[] zRot = accelerometerOutput.getzAxis();
+        double pitch = 0;
+        double roll = 0;
         int averagePeriod = 3;
         List<double[]> smoothedAcc = averageSmooth(x, y, z, t, averagePeriod);
         List<double[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t, averagePeriod);
@@ -81,11 +89,11 @@ public class MathUtil {
     }
 
 
-    public static List<double[]> averageSmooth(float[] x, float[] y, float[] z, long[] t, int averagePeriod) {
+    public static List<double[]> averageSmooth(double[] x, double[] y, double[] z, long[] t, int averagePeriod) {
 
         List<double[]> smoothedAccelerometerOutput = new ArrayList<>();
 
-        float xSum = 0, ySum = 0, zSum = 0;
+        double xSum = 0, ySum = 0, zSum = 0;
         double[] averageX = new double[x.length / averagePeriod];
         double[] averageY = new double[y.length / averagePeriod];
         double[] averageZ = new double[z.length / averagePeriod];
@@ -117,7 +125,7 @@ public class MathUtil {
     }
 
     public static double magnitude(double x, double y, double z) {
-        return (float)Math.sqrt(x*x+y*y+z*z);
+        return (double)Math.sqrt(x*x+y*y+z*z);
     }
 
     public static double getMaxPoint(double[] list){
@@ -146,13 +154,13 @@ public class MathUtil {
         return magDif;
     }
 
-    private float[] getMagnitudes(List<float[]> axisData) {
-        float[] x = axisData.get(0);
-        float[] y = axisData.get(1);
-        float[] z = axisData.get(2);
-        float[] magnitudes = new float[axisData.get(0).length];
+    public static double[] getMagnitudes(List<double[]> axisData) {
+        double[] x = axisData.get(0);
+        double[] y = axisData.get(1);
+        double[] z = axisData.get(2);
+        double[] magnitudes = new double[axisData.get(0).length];
         for (int i = 0; i < x.length; i++) {
-            magnitudes[i] = (float) magnitude(x[i], y[i], z[i]);
+            magnitudes[i] = magnitude(x[i], y[i], z[i]);
         }
 
         return magnitudes;

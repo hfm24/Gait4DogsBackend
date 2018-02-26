@@ -8,15 +8,15 @@ import java.util.List;
 public class AccelerometerOutput {
     private long[] epoc;
     private String[] timestamp;
-    private float[] elapsed;
-    private float[] x;
-    private float[] y;
-    private float[] z;
-    private float[] xAxis;
-    private float[] yAxis;
-    private float[] zAxis;
+    private double[] elapsed;
+    private double[] x;
+    private double[] y;
+    private double[] z;
+    private double[] xAxis;
+    private double[] yAxis;
+    private double[] zAxis;
 
-    public AccelerometerOutput(long[] epoc, String[] timestamp, float[] elapsed, float[] x, float[] y, float[] z, float[] xAxis, float[] yAxis, float[] zAxis) {
+    public AccelerometerOutput(long[] epoc, String[] timestamp, double[] elapsed, double[] x, double[] y, double[] z, double[] xAxis, double[] yAxis, double[] zAxis) {
         this.epoc = epoc;
         this.timestamp = timestamp;
         this.elapsed = elapsed;
@@ -44,72 +44,72 @@ public class AccelerometerOutput {
         this.timestamp = timestamp;
     }
 
-    public float[] getElapsed() {
+    public double[] getElapsed() {
         return elapsed;
     }
 
-    public void setElapsed(float[] elapsed) {
+    public void setElapsed(double[] elapsed) {
         this.elapsed = elapsed;
     }
 
-    public float[] getX() {
+    public double[] getX() {
         return x;
     }
 
-    public void setX(float[] x) {
+    public void setX(double[] x) {
         this.x = x;
     }
 
-    public float[] getY() {
+    public double[] getY() {
         return y;
     }
 
-    public void setY(float[] y) {
+    public void setY(double[] y) {
         this.y = y;
     }
 
-    public float[] getZ() {
+    public double[] getZ() {
         return z;
     }
 
-    public void setZ(float[] z) {
+    public void setZ(double[] z) {
         this.z = z;
     }
 
-    public float[] getxAxis() {
+    public double[] getxAxis() {
         return xAxis;
     }
 
-    public void setxAxis(float[] xAxis) {
+    public void setxAxis(double[] xAxis) {
         this.xAxis = xAxis;
     }
 
-    public float[] getyAxis() {
+    public double[] getyAxis() {
         return yAxis;
     }
 
-    public void setyAxis(float[] yAxis) {
+    public void setyAxis(double[] yAxis) {
         this.yAxis = yAxis;
     }
 
-    public float[] getzAxis() {
+    public double[] getzAxis() {
         return zAxis;
     }
 
-    public void setzAxis(float[] zAxis) {
+    public void setzAxis(double[] zAxis) {
         this.zAxis = zAxis;
     }
 
     public Document toDocument() {
         List<Long> epocList = new ArrayList<>();
         List<String> timestampList = new ArrayList<>();
-        List<Float> elapsedList = new ArrayList<>();
-        List<Float> xList = new ArrayList<>();
-        List<Float> yList = new ArrayList<>();
-        List<Float> zList = new ArrayList<>();
-        List<Float> xAxisList = new ArrayList<>();
-        List<Float> yAxisList = new ArrayList<>();
-        List<Float> zAxisList = new ArrayList<>();
+        List<Double> elapsedList = new ArrayList<>();
+        List<Double> xList = new ArrayList<>();
+        List<Double> yList = new ArrayList<>();
+        List<Double> zList = new ArrayList<>();
+        List<Double> xAxisList = new ArrayList<>();
+        List<Double> yAxisList = new ArrayList<>();
+        List<Double> zAxisList = new ArrayList<>();
         for (int i = 0; i < epoc.length; i++) {
             epocList.add(epoc[i]);
             timestampList.add(timestamp[i]);
@@ -147,24 +147,24 @@ public class AccelerometerOutput {
 
         long[] epoc = new long[epocList.size()];
         String[] timestamp = new String[timeStampList.size()];
-        float[] elapsed = new float[elapsedList.size()];
-        float[] x = new float[xList.size()];
-        float[] y = new float[yList.size()];
-        float[] z = new float[zList.size()];
-        float[] xAxis = new float[xAxisList.size()];
-        float[] yAxis = new float[yAxisList.size()];
-        float[] zAxis = new float[zAxisList.size()];
+        double[] elapsed = new double[elapsedList.size()];
+        double[] x = new double[xList.size()];
+        double[] y = new double[yList.size()];
+        double[] z = new double[zList.size()];
+        double[] xAxis = new double[xAxisList.size()];
+        double[] yAxis = new double[yAxisList.size()];
+        double[] zAxis = new double[zAxisList.size()];
 
         for (int i = 0; i < epoc.length; i++) {
             epoc[i] = epocList.get(i);
             timestamp[i] = timeStampList.get(i);
-            elapsed[i] = elapsedList.get(i).floatValue();
-            x[i] = xList.get(i).floatValue();
-            y[i] = yList.get(i).floatValue();
-            z[i] = zList.get(i).floatValue();
-            xAxis[i] = xAxisList.get(i).floatValue();
-            yAxis[i] = yAxisList.get(i).floatValue();
-            zAxis[i] = zAxisList.get(i).floatValue();
+            elapsed[i] = elapsedList.get(i).doubleValue();
+            x[i] = xList.get(i).doubleValue();
+            y[i] = yList.get(i).doubleValue();
+            z[i] = zList.get(i).doubleValue();
+            xAxis[i] = xAxisList.get(i).doubleValue();
+            yAxis[i] = yAxisList.get(i).doubleValue();
+            zAxis[i] = zAxisList.get(i).doubleValue();
         }
         return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis);
     }
