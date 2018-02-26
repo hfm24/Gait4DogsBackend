@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static com.mongodb.client.model.Filters.eq;
 
 @RestController
 public class SessionController {
@@ -47,9 +44,9 @@ public class SessionController {
         // Get acceleration data
         for (JsonNode dataObj : accelOutputs) {
             JsonNode epocArr = dataObj.get("epoc");
-            long[] epoc = new long[epocArr.size()];
+            double[] epoc = new double[epocArr.size()];
             for (int i = 0; i < epocArr.size(); i++) {
-                epoc[i] = epocArr.get(i).longValue();
+                epoc[i] = epocArr.get(i).doubleValue();
             }
 
             JsonNode timestampArr = dataObj.get("timestamp");

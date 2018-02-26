@@ -10,7 +10,7 @@ import static java.lang.Math.abs;
 
 public class AnalysisUtil {
 
-    private final float GYROSCOPE_SENSITIVITY = 100;
+    private final double GYROSCOPE_SENSITIVITY = 100;
 
     public AnalysisUtil() {
 
@@ -52,41 +52,41 @@ public class AnalysisUtil {
 
 
         //Finding the Magnitude
-        /*float[] magnitudes = getMagnitudes(axisData);
-        float minMagnitude = magnitudes[0];
-        float maxMagnitude = magnitudes[1];
-        float rangeMagnitude = magnitudes[2];*/
+        /*double[] magnitudes = getMagnitudes(axisData);
+        double minMagnitude = magnitudes[0];
+        double maxMagnitude = magnitudes[1];
+        double rangeMagnitude = magnitudes[2];*/
         int averagePeriod = 3;
 
         List<Angle> angles = MathUtil.getAngles(accelerometerOutput);
 
         List<double[]> smoothedAcc = MathUtil.averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getEpoc(),averagePeriod);
 
-        List<Long> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
+        List<Double> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
 
         AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges, angles, footStrikeTimes, smoothedAcc);
         return AOA;
     }
 
-    public List<Long> getFootStrikeTimes(List<double[]> axisData) {
+    public List<Double> getFootStrikeTimes(List<double[]> axisData) {
         // Measuring mean distance between foot strikes
         List<Integer> footStrikes = getFootStrikes(axisData);
-        List<Long> footStrikeTimes = new ArrayList<>();
+        List<Double> footStrikeTimes = new ArrayList<>();
         if (footStrikes.size() == 0) {
             return footStrikeTimes;
         }
 
-        long sum = 0;
+        double sum = 0;
         int firstFootStrikeIdx = footStrikes.get(0);
-        long lastEpoc = (long)axisData.get(3)[firstFootStrikeIdx];
+        double lastEpoc = (double)axisData.get(3)[firstFootStrikeIdx];
         footStrikeTimes.add(lastEpoc);
-        long currentEpoc;
-        long dt;
-        List<Long> dts = new ArrayList<>();
+        double currentEpoc;
+        double dt;
+        List<Double> dts = new ArrayList<>();
         System.out.println(lastEpoc);
         for (int i = 1; i < footStrikes.size(); i++) {
             int elapsedTIdx = footStrikes.get(i);
-            currentEpoc = (long)axisData.get(3)[elapsedTIdx];
+            currentEpoc = (double)axisData.get(3)[elapsedTIdx];
             footStrikeTimes.add(currentEpoc);
             System.out.println(currentEpoc);
             dt = currentEpoc - lastEpoc;
@@ -94,14 +94,14 @@ public class AnalysisUtil {
             lastEpoc = currentEpoc;
             sum += dt;
         }
-        float avgDt = sum / dts.size();
+        double avgDt = sum / dts.size();
 
         sum = 0;
         for (int i = 1; i < dts.size(); i++) {
-            float sqrMean = (dts.get(i) - avgDt)*(dts.get(i) - avgDt);
+            double sqrMean = (dts.get(i) - avgDt)*(dts.get(i) - avgDt);
             sum += sqrMean;
         }
-        float dtVariance = 0;
+        double dtVariance = 0;
         if (dts.size() > 1) {
             dtVariance = sum / (dts.size()-1);
         }
@@ -118,7 +118,7 @@ public class AnalysisUtil {
         double[] y = accData.get(1);
         double[] z = accData.get(2);
 
-        float epsilon = 0.25f;
+        double epsilon = 0.25f;
         List<Integer> peakStridePoints = new ArrayList<>();
         double currentMagnitude;
         double lastMagnitude;
@@ -191,7 +191,7 @@ public class AnalysisUtil {
         double[] zA = control.getSmoothedAcc().get(2);
         double[] magnitudesControl = new double[xA.length];
         double[] timesControl = new double[xA.length];
-        List<Long> shiftedFootStrikesControl = new ArrayList<>();
+        List<Double> shiftedFootStrikesControl = new ArrayList<>();
         double period = footStrikePeriod(control.getFootStrikeTimes());
         if (control.getFootStrikeTimes().size() == 0 || control.getFootStrikeTimes().get(0) < compare.getFootStrikeTimes().get(0)) {
             for (int i = 0; i < xA.length; i++) {
@@ -245,15 +245,15 @@ public class AnalysisUtil {
         return shiftedMagnitudes;
     }
 
-    private double footStrikePeriod(List<Long> footStrikeTimes) {
+    private double footStrikePeriod(List<Double> footStrikeTimes) {
         if (footStrikeTimes.size() == 0) {
             return 0;
         }
-        long sum = 0;
-        long lastEpoc = (long)footStrikeTimes.get(0);
-        long currentEpoc;
-        long dt;
-        List<Long> dts = new ArrayList<>();
+        double sum = 0;
+        double lastEpoc = (double)footStrikeTimes.get(0);
+        double currentEpoc;
+        double dt;
+        List<Double> dts = new ArrayList<>();
         for (int i = 1; i < footStrikeTimes.size(); i++) {
             currentEpoc = footStrikeTimes.get(i);
             dt = currentEpoc - lastEpoc;
@@ -261,7 +261,7 @@ public class AnalysisUtil {
             lastEpoc = currentEpoc;
             sum += dt;
         }
-        float avgDt = sum / dts.size();
+        double avgDt = sum / dts.size();
 
         return avgDt;
     }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AccelerometerOutput {
-    private long[] epoc;
+    private double[] epoc;
     private String[] timestamp;
     private double[] elapsed;
     private double[] x;
@@ -16,7 +16,7 @@ public class AccelerometerOutput {
     private double[] yAxis;
     private double[] zAxis;
 
-    public AccelerometerOutput(long[] epoc, String[] timestamp, double[] elapsed, double[] x, double[] y, double[] z, double[] xAxis, double[] yAxis, double[] zAxis) {
+    public AccelerometerOutput(double[] epoc, String[] timestamp, double[] elapsed, double[] x, double[] y, double[] z, double[] xAxis, double[] yAxis, double[] zAxis) {
         this.epoc = epoc;
         this.timestamp = timestamp;
         this.elapsed = elapsed;
@@ -28,11 +28,11 @@ public class AccelerometerOutput {
         this.zAxis = zAxis;
     }
 
-    public long[] getEpoc() {
+    public double[] getEpoc() {
         return epoc;
     }
 
-    public void setEpoc(long[] epoc) {
+    public void setEpoc(double[] epoc) {
         this.epoc = epoc;
     }
 
@@ -101,7 +101,7 @@ public class AccelerometerOutput {
     }
 
     public Document toDocument() {
-        List<Long> epocList = new ArrayList<>();
+        List<Double> epocList = new ArrayList<>();
         List<String> timestampList = new ArrayList<>();
         List<Double> elapsedList = new ArrayList<>();
         List<Double> xList = new ArrayList<>();
@@ -135,7 +135,7 @@ public class AccelerometerOutput {
     }
 
     public static AccelerometerOutput toAccelerometerOutput(Document doc) {
-        List<Long> epocList = (List<Long>)doc.get("epoc");
+        List<Double> epocList = (List<Double>)doc.get("epoc");
         List<String> timeStampList = (List<String>)doc.get("timestamp");
         List<Double> elapsedList = (List<Double>)doc.get("elapsed");
         List<Double> xList = (List<Double>)doc.get("x");
@@ -145,7 +145,7 @@ public class AccelerometerOutput {
         List<Double> yAxisList = (List<Double>)doc.get("yAxis");
         List<Double> zAxisList = (List<Double>)doc.get("zAxis");
 
-        long[] epoc = new long[epocList.size()];
+        double[] epoc = new double[epocList.size()];
         String[] timestamp = new String[timeStampList.size()];
         double[] elapsed = new double[elapsedList.size()];
         double[] x = new double[xList.size()];

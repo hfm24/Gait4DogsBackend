@@ -53,7 +53,7 @@ public class MathUtil {
 
     public static List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
         List<Angle> output = new ArrayList<Angle>();
-        long[] t = accelerometerOutput.getEpoc();
+        double[] t = accelerometerOutput.getEpoc();
         double[] x = accelerometerOutput.getX();
         double[] y = accelerometerOutput.getY();
         double[] z = accelerometerOutput.getZ();
@@ -89,7 +89,7 @@ public class MathUtil {
     }
 
 
-    public static List<double[]> averageSmooth(double[] x, double[] y, double[] z, long[] t, int averagePeriod) {
+    public static List<double[]> averageSmooth(double[] x, double[] y, double[] z, double[] t, int averagePeriod) {
 
         List<double[]> smoothedAccelerometerOutput = new ArrayList<>();
 

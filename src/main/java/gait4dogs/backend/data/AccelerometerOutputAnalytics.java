@@ -9,11 +9,11 @@ public class AccelerometerOutputAnalytics {
     private double[] minimums;
     private double[] maximums;
     private double[] ranges;
-    private List<Long> footStrikeTimes;
+    private List<Double> footStrikeTimes;
     private List<Angle> angles; // List of double arrays where each array contains single pitch and single roll
     private List<double[]> smoothedAcc;
     private List<double[]> shiftedMagnitudes;
-    private List<Long> shiftedFootStrikeTimes;
+    private List<Double> shiftedFootStrikeTimes;
 
     public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles) {
@@ -21,11 +21,11 @@ public class AccelerometerOutputAnalytics {
         this.maximums = maximums;
         this.ranges = ranges;
         this.angles = angles;
-        this.footStrikeTimes = new ArrayList<Long>();
+        this.footStrikeTimes = new ArrayList<Double>();
     }
 
     public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
-                                        List<Angle> angles, List<Long> footStrikeTimes) {
+                                        List<Angle> angles, List<Double> footStrikeTimes) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
@@ -34,7 +34,7 @@ public class AccelerometerOutputAnalytics {
     }
 
     public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
-                                        List<Angle> angles, List<Long> footStrikeTimes,
+                                        List<Angle> angles, List<Double> footStrikeTimes,
                                         List<double[]> smoothedAcc) {
         this.minimums = minimums;
         this.maximums = maximums;
@@ -45,9 +45,9 @@ public class AccelerometerOutputAnalytics {
     }
 
     public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
-                                        List<Angle> angles, List<Long> footStrikeTimes,
+                                        List<Angle> angles, List<Double> footStrikeTimes,
                                         List<double[]> smoothedAcc, List<double[]> shiftedMagnitudes,
-                                        List<Long> shiftedFootStrikeTimes) {
+                                        List<Double> shiftedFootStrikeTimes) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
@@ -74,11 +74,11 @@ public class AccelerometerOutputAnalytics {
         return angles;
     }
 
-    public List<Long> getFootStrikeTimes() {
+    public List<Double> getFootStrikeTimes() {
         return footStrikeTimes;
     }
 
-    public void setFootStrikeTimes(List<Long> footStrikeTimes) {
+    public void setFootStrikeTimes(List<Double> footStrikeTimes) {
         this.footStrikeTimes = footStrikeTimes;
     }
 
@@ -98,11 +98,11 @@ public class AccelerometerOutputAnalytics {
         this.shiftedMagnitudes = shiftedMagnitudes;
     }
 
-    public List<Long> getShiftedFootStrikeTimes() {
+    public List<Double> getShiftedFootStrikeTimes() {
         return shiftedFootStrikeTimes;
     }
 
-    public void setShiftedFootStrikeTimes(List<Long> shiftedFootStrikeTimes) {
+    public void setShiftedFootStrikeTimes(List<Double> shiftedFootStrikeTimes) {
         this.shiftedFootStrikeTimes = shiftedFootStrikeTimes;
     }
 
@@ -145,8 +145,8 @@ public class AccelerometerOutputAnalytics {
         List<Double> minList = (List<Double>)doc.get("minimums");
         List<Double> maxList = (List<Double>)doc.get("maximums");
         List<Double> rangesList = (List<Double>)doc.get("ranges");
-        List<Long> footStrikes = (List<Long>)doc.get("footStrikes");
-        List<Long> shiftedFootStrikes = (List<Long>)doc.get("shiftedFootStrikes");
+        List<Double> footStrikes = (List<Double>)doc.get("footStrikes");
+        List<Double> shiftedFootStrikes = (List<Double>)doc.get("shiftedFootStrikes");
         double[] minimums = new double[minList.size()];
         double[] maximums = new double[maxList.size()];
         double[] ranges = new double[rangesList.size()];
