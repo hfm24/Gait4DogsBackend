@@ -27,4 +27,15 @@ public class SessionRawData {
         return doc;
     }
 
+    public static SessionRawData toSessionRawData(Document doc) {
+        List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
+        ArrayList<Document> accelerometerOutputDocs = (ArrayList<Document>)doc.get("accelerometerOutputs");
+        for (Document accelerometerOutputDoc : accelerometerOutputDocs) {
+            accelerometerOutputs.add(AccelerometerOutput.toAccelerometerOutput(accelerometerOutputDoc));
+        }
+
+        SessionRawData rawData = new SessionRawData(accelerometerOutputs);
+        return rawData;
+    }
+
 }

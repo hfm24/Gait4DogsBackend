@@ -133,4 +133,39 @@ public class AccelerometerOutput {
 
         return doc;
     }
+
+    public static AccelerometerOutput toAccelerometerOutput(Document doc) {
+        List<Long> epocList = (List<Long>)doc.get("epoc");
+        List<String> timeStampList = (List<String>)doc.get("timestamp");
+        List<Double> elapsedList = (List<Double>)doc.get("elapsed");
+        List<Double> xList = (List<Double>)doc.get("x");
+        List<Double> yList = (List<Double>)doc.get("y");
+        List<Double> zList = (List<Double>)doc.get("z");
+        List<Double> xAxisList = (List<Double>)doc.get("xAxis");
+        List<Double> yAxisList = (List<Double>)doc.get("yAxis");
+        List<Double> zAxisList = (List<Double>)doc.get("zAxis");
+
+        long[] epoc = new long[epocList.size()];
+        String[] timestamp = new String[timeStampList.size()];
+        float[] elapsed = new float[elapsedList.size()];
+        float[] x = new float[xList.size()];
+        float[] y = new float[yList.size()];
+        float[] z = new float[zList.size()];
+        float[] xAxis = new float[xAxisList.size()];
+        float[] yAxis = new float[yAxisList.size()];
+        float[] zAxis = new float[zAxisList.size()];
+
+        for (int i = 0; i < epoc.length; i++) {
+            epoc[i] = epocList.get(i);
+            timestamp[i] = timeStampList.get(i);
+            elapsed[i] = elapsedList.get(i).floatValue();
+            x[i] = xList.get(i).floatValue();
+            y[i] = yList.get(i).floatValue();
+            z[i] = zList.get(i).floatValue();
+            xAxis[i] = xAxisList.get(i).floatValue();
+            yAxis[i] = yAxisList.get(i).floatValue();
+            zAxis[i] = zAxisList.get(i).floatValue();
+        }
+        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis);
+    }
 }

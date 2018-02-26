@@ -48,4 +48,18 @@ public class Session {
                 .append("notes", notes);
         return doc;
     }
+
+    public static Session toSession(Document doc) {
+        String id = doc.getString("id");
+        String dogId = doc.getString("dogId");
+        String notes = doc.getString("notes");
+
+        Document data = (Document)doc.get("rawData");
+        SessionRawData rawData = SessionRawData.toSessionRawData(data);
+
+        Document sesssionAnalytics = (Document)doc.get("sessionAnalytics");
+        SessionAnalytics sessionAnalytics = SessionAnalytics.toSessionAnalytics(sesssionAnalytics);
+
+        return new Session(id, dogId, rawData, sessionAnalytics, notes);
+    }
 }
