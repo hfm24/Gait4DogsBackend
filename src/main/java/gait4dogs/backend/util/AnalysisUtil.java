@@ -72,6 +72,9 @@ public class AnalysisUtil {
         // Measuring mean distance between foot strikes
         List<Integer> footStrikes = getFootStrikes(axisData);
         List<Long> footStrikeTimes = new ArrayList<>();
+        if (footStrikes.size() == 0) {
+            return footStrikeTimes;
+        }
 
         long sum = 0;
         int firstFootStrikeIdx = footStrikes.get(0);
