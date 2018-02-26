@@ -94,10 +94,10 @@ public class MathUtil {
         List<double[]> smoothedAccelerometerOutput = new ArrayList<>();
 
         double xSum = 0, ySum = 0, zSum = 0;
-        double[] averageX = new double[x.length / averagePeriod];
-        double[] averageY = new double[y.length / averagePeriod];
-        double[] averageZ = new double[z.length / averagePeriod];
-        double[] averageT = new double[t.length / averagePeriod];
+        double[] averageX = new double[x.length / averagePeriod + (x.length/averagePeriod % averagePeriod)];
+        double[] averageY = new double[y.length / averagePeriod + (y.length/averagePeriod % averagePeriod)];
+        double[] averageZ = new double[z.length / averagePeriod + (z.length/averagePeriod % averagePeriod)];
+        double[] averageT = new double[t.length / averagePeriod + (t.length/averagePeriod % averagePeriod)];
 
 
         for (int i = 0; i < x.length; i++) {
@@ -105,7 +105,7 @@ public class MathUtil {
             ySum += y[i];
             zSum += z[i];
 
-            if (i % 3 == 0) {
+            if (i % averagePeriod == 0) {
                 averageX[i/averagePeriod] = xSum/averagePeriod;
                 averageY[i/averagePeriod] = ySum/averagePeriod;
                 averageZ[i/averagePeriod] = zSum/averagePeriod;
