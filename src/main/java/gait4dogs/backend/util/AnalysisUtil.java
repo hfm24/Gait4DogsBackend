@@ -190,7 +190,7 @@ public class AnalysisUtil {
         double[] timesControl = new double[xA.length];
         List<Long> shiftedFootStrikesControl = new ArrayList<>();
         double period = footStrikePeriod(control.getFootStrikeTimes());
-        if (control.getFootStrikeTimes().get(0) < compare.getFootStrikeTimes().get(0)) {
+        if (control.getFootStrikeTimes().size() == 0 || control.getFootStrikeTimes().get(0) < compare.getFootStrikeTimes().get(0)) {
             for (int i = 0; i < xA.length; i++) {
                 double magnitude = Math.sqrt(xA[i]*xA[i] + yA[i]*yA[i] + zA[i]*zA[i]);
                 double t = control.getSmoothedAcc().get(3)[i];
@@ -243,6 +243,9 @@ public class AnalysisUtil {
     }
 
     private double footStrikePeriod(List<Long> footStrikeTimes) {
+        if (footStrikeTimes.size() == 0) {
+            return 0;
+        }
         long sum = 0;
         long lastEpoc = (long)footStrikeTimes.get(0);
         long currentEpoc;
