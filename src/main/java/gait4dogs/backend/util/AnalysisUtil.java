@@ -101,7 +101,10 @@ public class AnalysisUtil {
             float sqrMean = (dts.get(i) - avgDt)*(dts.get(i) - avgDt);
             sum += sqrMean;
         }
-        float dtVariance = sum / (dts.size()-1);
+        float dtVariance = 0;
+        if (dts.size() > 1) {
+            dtVariance = sum / (dts.size()-1);
+        }
 
         System.out.println("average time between steps: " + avgDt);
         System.out.println("variance of time between steps: " + dtVariance);
