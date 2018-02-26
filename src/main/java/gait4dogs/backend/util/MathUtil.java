@@ -65,7 +65,7 @@ public class MathUtil {
         int averagePeriod = 3;
         List<double[]> smoothedAcc = averageSmooth(x, y, z, t, averagePeriod);
         List<double[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t, averagePeriod);
-        smoothedRot = getNoiseAverage(smoothedRot);
+        smoothedRot = FilterUtil.getNoiseAverage(smoothedRot);
         double[] smoothAccX = smoothedAcc.get(0);
         double[] smoothAccY = smoothedAcc.get(1);
         double[] smoothAccZ = smoothedAcc.get(2);
@@ -79,7 +79,7 @@ public class MathUtil {
             //System.out.println(t[i*3] + ", " + smoothedRot.get(i)[0] + ", " + smoothedRot.get(i)[1] + ", " + smoothedRot.get(i)[2]);
             double[] accX = new double[]{smoothAccX[i],smoothAccY[i], smoothAccZ[i]};
             double[] rotX = new double[]{smoothRotX[i],smoothRotY[i],smoothRotZ[i]};
-            Angle thisAngle = complementaryFilter(accX, rotX, pitch, roll, 0.11f);
+            Angle thisAngle = FilterUtil.complementaryFilter(accX, rotX, pitch, roll, 0.11f);
             pitch = thisAngle.getPitch();
             roll = thisAngle.getRoll();
             output.add(thisAngle);

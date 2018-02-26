@@ -3,26 +3,26 @@ package gait4dogs.backend.data;
 import org.bson.Document;
 
 public class Angle {
-    private float pitch;
-    private float roll;
-    public Angle(float pitch, float roll) {
+    private double pitch;
+    private double roll;
+    public Angle(double pitch, double roll) {
         this.pitch = pitch;
         this.roll = roll;
     }
 
-    public float getPitch() {
+    public double getPitch() {
         return pitch;
     }
 
-    public void setPitch(float pitch) {
+    public void setPitch(double pitch) {
         this.pitch = pitch;
     }
 
-    public float getRoll() {
+    public double getRoll() {
         return roll;
     }
 
-    public void setRoll(float roll) {
+    public void setRoll(double roll) {
         this.roll = roll;
     }
 

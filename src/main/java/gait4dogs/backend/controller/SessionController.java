@@ -59,45 +59,45 @@ public class SessionController {
             }
 
             JsonNode elapsedArr = dataObj.get("elapsed");
-            float[] elapsed = new float[elapsedArr.size()];
+            double[] elapsed = new double[elapsedArr.size()];
             for (int i = 0; i < elapsedArr.size(); i++) {
-                elapsed[i] = elapsedArr.get(i).floatValue();
+                elapsed[i] = elapsedArr.get(i).doubleValue();
             }
 
             JsonNode xArr = dataObj.get("x");
-            float[] x = new float[xArr.size()];
+            double[] x = new double[xArr.size()];
             for (int i = 0; i < xArr.size(); i++) {
-                x[i] = xArr.get(i).floatValue();
+                x[i] = xArr.get(i).doubleValue();
             }
 
             JsonNode yArr = dataObj.get("y");
-            float[] y = new float[yArr.size()];
+            double[] y = new double[yArr.size()];
             for (int i = 0; i < yArr.size(); i++) {
-                y[i] = yArr.get(i).floatValue();
+                y[i] = yArr.get(i).doubleValue();
             }
 
             JsonNode zArr = dataObj.get("z");
-            float[] z = new float[zArr.size()];
+            double[] z = new double[zArr.size()];
             for (int i = 0; i < zArr.size(); i++) {
-                z[i] = zArr.get(i).floatValue();
+                z[i] = zArr.get(i).doubleValue();
             }
 
             JsonNode xAxisArr = dataObj.get("xAxis");
-            float[] xAxis = new float[xAxisArr.size()];
+            double[] xAxis = new double[xAxisArr.size()];
             for (int i = 0; i < xAxisArr.size(); i++) {
-                xAxis[i] = xAxisArr.get(i).floatValue();
+                xAxis[i] = xAxisArr.get(i).doubleValue();
             }
 
             JsonNode yAxisArr = dataObj.get("yAxis");
-            float[] yAxis = new float[yAxisArr.size()];
+            double[] yAxis = new double[yAxisArr.size()];
             for (int i = 0; i < yAxisArr.size(); i++) {
-                yAxis[i] = yAxisArr.get(i).floatValue();
+                yAxis[i] = yAxisArr.get(i).doubleValue();
             }
 
             JsonNode zAxisArr = dataObj.get("zAxis");
-            float[] zAxis = new float[zAxisArr.size()];
+            double[] zAxis = new double[zAxisArr.size()];
             for (int i = 0; i < zAxisArr.size(); i++) {
-                zAxis[i] = zAxisArr.get(i).floatValue();
+                zAxis[i] = zAxisArr.get(i).doubleValue();
             }
 
 
