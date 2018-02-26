@@ -56,10 +56,11 @@ public class AnalysisUtil {
         float minMagnitude = magnitudes[0];
         float maxMagnitude = magnitudes[1];
         float rangeMagnitude = magnitudes[2];
+        int averagePeriod = 3;
 
         List<Angle> angles = getAngles(accelerometerOutput);
 
-        List<double[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getEpoc());
+        List<double[]> smoothedAcc = averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getEpoc(),averagePeriod);
 
         List<Long> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
 
@@ -221,8 +222,9 @@ public class AnalysisUtil {
         float[] zRot = accelerometerOutput.getzAxis();
         float pitch = 0;
         float roll = 0;
-        List<double[]> smoothedAcc = averageSmooth(x, y, z, t);
-        List<double[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t);
+        int averagePeriod = 3;
+        List<double[]> smoothedAcc = averageSmooth(x, y, z, t, averagePeriod);
+        List<double[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t, averagePeriod);
         smoothedRot = getNoiseAverage(smoothedRot);
         double[] smoothAccX = smoothedAcc.get(0);
         double[] smoothAccY = smoothedAcc.get(1);
@@ -270,15 +272,16 @@ public class AnalysisUtil {
         return new Angle(pitch, roll);
     }
 
-    public List<double[]> averageSmooth(float[] x, float[] y, float[] z, long[] t) {
+    public List<double[]> averageSmooth(float[] x, float[] y, float[] z, long[] t, int averagePeriod) {
 
         List<double[]> smoothedAccelerometerOutput = new ArrayList<>();
 
         float xSum = 0, ySum = 0, zSum = 0;
-        double[] averageX = new double[x.length / 3];
-        double[] averageY = new double[y.length / 3];
-        double[] averageZ = new double[z.length / 3];
-        double[] averageT = new double[t.length / 3];
+        double[] averageX = new double[x.length / averagePeriod];
+        double[] averageY = new double[y.length / averagePeriod];
+        double[] averageZ = new double[z.length / averagePeriod];
+        double[] averageT = new double[t.length / averagePeriod];
+
 
         for (int i = 0; i < x.length; i++) {
             xSum += x[i];
@@ -286,10 +289,10 @@ public class AnalysisUtil {
             zSum += z[i];
 
             if (i % 3 == 0) {
-                averageX[i/3] = xSum/3;
-                averageY[i/3] = ySum/3;
-                averageZ[i/3] = zSum/3;
-                averageT[i/3] = t[i];
+                averageX[i/averagePeriod] = xSum/averagePeriod;
+                averageY[i/averagePeriod] = ySum/averagePeriod;
+                averageZ[i/averagePeriod] = zSum/averagePeriod;
+                averageT[i/averagePeriod] = t[i];
 
                 xSum = 0;
                 ySum = 0;
