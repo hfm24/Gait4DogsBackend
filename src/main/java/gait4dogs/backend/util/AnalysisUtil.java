@@ -316,21 +316,17 @@ public class AnalysisUtil {
         double yNoise = yMax * .05;
         double zNoise = zMax * .05;
 
+
+        xNoise = 0;
+        yNoise = 0;
+        zNoise = 0;
+
         List<double[]> averagedNoise = new ArrayList<>();
-        for(int i = 1; i < xRotation.length; i++){
-            if(Math.abs(xRotation[i] - (xRotation[i]-1)) < xNoise){
-                xRotation[i] = 0;
-            }
-
-            if(Math.abs(yRotation[i] - (yRotation[i]-1)) < yNoise){
-                yRotation[i] = 0;
-            }
-
-            if(Math.abs(zRotation[i] - (zRotation[i]-1)) < zNoise){
-                zRotation[i] = 0;
-            }
+        for(int i = 0; i < xRotation.length; i++){
+            xRotation[i] = xRotation[i] - xNoise;
+            yRotation[i] = yRotation[i] - yNoise;
+            zRotation[i] = zRotation[i] - zNoise;
         }
-
 
 
         averagedNoise.add(xRotation);
