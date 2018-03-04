@@ -45,14 +45,10 @@ public class FilterUtil {
         double yMax = MathUtil.getMaxPoint(yRotation);
         double zMax = MathUtil.getMaxPoint(zRotation);
 
-        double xNoise = xMax * .05;
-        double yNoise = yMax * .05;
-        double zNoise = zMax * .05;
 
-
-        xNoise = 0;
-        yNoise = 0;
-        zNoise = 0;
+        double xNoise = 0.493164063;
+        double yNoise = 0.041503906;
+        double zNoise = 0.483398438;
 
         List<double[]> averagedNoise = new ArrayList<>();
         for(int i = 0; i < xRotation.length; i++){
