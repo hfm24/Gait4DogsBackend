@@ -39,6 +39,8 @@ public class SessionController {
         JsonNode sessionObj = mapper.readTree(json);
         String dogId = sessionObj.get("dogId").textValue();
         String notes = sessionObj.get("notes").textValue();
+        String date = sessionObj.get("date").textValue();
+        String gaitType = sessionObj.get("gaitType").textValue();
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
         JsonNode accelOutputs = sessionObj.get("data");
         // Get acceleration data
@@ -107,7 +109,7 @@ public class SessionController {
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         // Get latest id
         Integer id = (Integer) dbUtil.getNextSequence("Sessions");
-        Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes);
+        Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
 
 
         sessions.insertOne(session.toDocument());
