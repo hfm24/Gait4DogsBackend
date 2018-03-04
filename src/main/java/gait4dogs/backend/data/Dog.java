@@ -11,6 +11,7 @@ public class Dog {
     private float weight;
     private String breed;
     private String birthDate;
+    private String injuryType;
 
 
     public Dog(String id, String name, float height, float weight, String breed, String birthDate) {
@@ -67,13 +68,34 @@ public class Dog {
         this.birthDate = birthDate;
     }
 
+    public String getInjuryType() {
+        return injuryType;
+    }
+
+    public void setInjuryType(String injuryType) {
+        this.injuryType = injuryType;
+    }
+
+
+    public static Dog toDog(Document doc) {
+        String id = doc.getString("id");
+        String name = doc.getString("name");
+        float height = doc.getDouble("height").floatValue();
+        float weight = doc.getDouble("weight").floatValue();
+        String breed = doc.getString("breed");
+        String birthDate = doc.getString("birthDate");
+        String injuryType = doc.getString("injuryType");
+        return new Dog(id, name, height, weight, breed, birthDate);
+    }
+
     public Document toDocument() {
         Document doc = new Document("id", id)
                 .append("name", name)
                 .append("height", height)
                 .append("weight", weight)
                 .append("breed", breed)
-                .append("birthDate", birthDate);
+                .append("birthDate", birthDate)
+                .append("injuryType", injuryType);
         return doc;
     }
 }

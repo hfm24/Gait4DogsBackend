@@ -64,7 +64,7 @@ public class DogController {
         if (doc == null) {
             return null;
         }
-        return toDog(doc);
+        return Dog.toDog(doc);
     }
 
     @RequestMapping("/dog/getAll")
@@ -73,7 +73,7 @@ public class DogController {
         List<Dog> dogList = new ArrayList<>();
         MongoCursor<Document> docs = dogs.find().iterator();
         while (docs.hasNext()) {
-            dogList.add(toDog(docs.next()));
+            dogList.add(Dog.toDog(docs.next()));
         }
         Dog[] dogArray = new Dog[dogList.size()];
         for (int i = 0; i < dogList.size(); i++) {
@@ -93,13 +93,5 @@ public class DogController {
         return new DogAnalytics(id);
     }
 
-    private Dog toDog(Document doc) {
-        String id = doc.getString("id");
-        String name = doc.getString("name");
-        float height = doc.getDouble("height").floatValue();
-        float weight = doc.getDouble("weight").floatValue();
-        String breed = doc.getString("breed");
-        String birthDate = doc.getString("birthDate");
-        return new Dog(id, name, height, weight, breed, birthDate);
-    }
+
 }
