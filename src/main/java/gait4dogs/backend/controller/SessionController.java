@@ -37,10 +37,10 @@ public class SessionController {
 
 
         JsonNode sessionObj = mapper.readTree(json);
-        String dogId = sessionObj.get("dogId").textValue();
-        String notes = sessionObj.get("notes").textValue();
-        String date = sessionObj.get("date").textValue();
-        String gaitType = sessionObj.get("gaitType").textValue();
+        String dogId = getJsonNodeText(sessionObj, "dogId");
+        String notes = getJsonNodeText(sessionObj, "notes");
+        String date = getJsonNodeText(sessionObj, "date");
+        String gaitType = getJsonNodeText(sessionObj, "gaitType");
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
         JsonNode accelOutputs = sessionObj.get("data");
         // Get acceleration data
@@ -99,7 +99,7 @@ public class SessionController {
                 zAxis[i] = zAxisArr.get(i).doubleValue();
             }
 
-            String label = dataObj.get("label").textValue();
+            String label = getJsonNodeText(dataObj, "label");
             AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis, label);
             accelerometerOutputs.add(accelerometerOutput);
         }
@@ -152,5 +152,11 @@ public class SessionController {
            return session.getSessionAnalytics();
        }
        return null;
+    }
+
+    private String getJsonNodeText(JsonNode node, String key) {
+        Object valueObj = node.get(key);
+        String value = valueObj == null ? null : node.get(key).textValue();
+        return value;
     }
 }
