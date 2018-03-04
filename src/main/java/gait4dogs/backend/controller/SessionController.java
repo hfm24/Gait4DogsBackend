@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import gait4dogs.backend.data.*;
 import gait4dogs.backend.util.AnalysisUtil;
@@ -137,6 +138,24 @@ public class SessionController {
         }
 
         return null;
+    }
+
+    @RequestMapping(value="session/getByDogId", method=RequestMethod.GET)
+    public List<String> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        List<String> ids = new ArrayList<>();
+        BasicDBObject query = new BasicDBObject();
+        query.put("dogId", dogId);
+        MongoCursor<Document> cursor = sessions.find(query).iterator();
+        try {
+            while (cursor.hasNext()) {
+                ids.add(cursor.next().getString("id"));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return ids;
     }
 
     @RequestMapping("/sessionAnalytics/add")
