@@ -14,6 +14,7 @@ public class AccelerometerOutputAnalytics {
     private List<double[]> smoothedAcc;
     private List<double[]> shiftedMagnitudes;
     private List<Double> shiftedFootStrikeTimes;
+    private String label;
 
     public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles) {
@@ -25,29 +26,21 @@ public class AccelerometerOutputAnalytics {
     }
 
     public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
-                                        List<Angle> angles, List<Double> footStrikeTimes) {
-        this.minimums = minimums;
-        this.maximums = maximums;
-        this.ranges = ranges;
-        this.angles = angles;
-        this.footStrikeTimes = footStrikeTimes;
-    }
-
-    public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles, List<Double> footStrikeTimes,
-                                        List<double[]> smoothedAcc) {
+                                        List<double[]> smoothedAcc, String label) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
         this.angles = angles;
         this.footStrikeTimes = footStrikeTimes;
         this.smoothedAcc = smoothedAcc;
+        this.label = label;
     }
 
     public AccelerometerOutputAnalytics(double[] minimums, double[] maximums, double[] ranges,
                                         List<Angle> angles, List<Double> footStrikeTimes,
                                         List<double[]> smoothedAcc, List<double[]> shiftedMagnitudes,
-                                        List<Double> shiftedFootStrikeTimes) {
+                                        List<Double> shiftedFootStrikeTimes, String label) {
         this.minimums = minimums;
         this.maximums = maximums;
         this.ranges = ranges;
@@ -56,6 +49,7 @@ public class AccelerometerOutputAnalytics {
         this.smoothedAcc = smoothedAcc;
         this.shiftedMagnitudes = shiftedMagnitudes;
         this.shiftedFootStrikeTimes = shiftedFootStrikeTimes;
+        this.label = label;
     }
 
     public double[] getMinimums() {
@@ -106,6 +100,14 @@ public class AccelerometerOutputAnalytics {
         this.shiftedFootStrikeTimes = shiftedFootStrikeTimes;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     public Document toDocument() {
         List<Double> minList = new ArrayList<>();
         List<Double> maxList = new ArrayList<>();
@@ -136,7 +138,8 @@ public class AccelerometerOutputAnalytics {
                 .append("angles", angleDocs)
                 .append("footStrikes", footStrikeTimes)
                 .append("shiftedMagnitudes", shiftedMagnitudesDoc)
-                .append("shiftedFootStrikes", shiftedFootStrikeTimes);
+                .append("shiftedFootStrikes", shiftedFootStrikeTimes)
+                .append("label", label);
 
         return doc;
     }
@@ -170,7 +173,9 @@ public class AccelerometerOutputAnalytics {
         shiftedMagnitudes.add(magnitudes);
         shiftedMagnitudes.add(times);
 
+        String label = doc.getString("label");
+
         return new AccelerometerOutputAnalytics(minimums, maximums, ranges,
-                angles, footStrikes, null, shiftedMagnitudes, shiftedFootStrikes);
+                angles, footStrikes, null, shiftedMagnitudes, shiftedFootStrikes, label);
     }
 }

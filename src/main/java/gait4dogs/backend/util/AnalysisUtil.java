@@ -64,7 +64,8 @@ public class AnalysisUtil {
 
         List<Double> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
 
-        AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges, angles, footStrikeTimes, smoothedAcc);
+        String label = accelerometerOutput.getLabel();
+        AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges, angles, footStrikeTimes, smoothedAcc, label);
         return AOA;
     }
 
@@ -267,4 +268,3 @@ public class AnalysisUtil {
     }
 
 }
-

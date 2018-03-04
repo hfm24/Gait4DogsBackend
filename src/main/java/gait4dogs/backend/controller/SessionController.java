@@ -97,8 +97,8 @@ public class SessionController {
                 zAxis[i] = zAxisArr.get(i).doubleValue();
             }
 
-
-            AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis);
+            String label = dataObj.get("label").textValue();
+            AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis, label);
             accelerometerOutputs.add(accelerometerOutput);
         }
 

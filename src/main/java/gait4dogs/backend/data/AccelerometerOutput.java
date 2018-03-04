@@ -15,8 +15,9 @@ public class AccelerometerOutput {
     private double[] xAxis;
     private double[] yAxis;
     private double[] zAxis;
+    private String label;
 
-    public AccelerometerOutput(double[] epoc, String[] timestamp, double[] elapsed, double[] x, double[] y, double[] z, double[] xAxis, double[] yAxis, double[] zAxis) {
+    public AccelerometerOutput(double[] epoc, String[] timestamp, double[] elapsed, double[] x, double[] y, double[] z, double[] xAxis, double[] yAxis, double[] zAxis, String label) {
         this.epoc = epoc;
         this.timestamp = timestamp;
         this.elapsed = elapsed;
@@ -26,6 +27,7 @@ public class AccelerometerOutput {
         this.xAxis = xAxis;
         this.yAxis = yAxis;
         this.zAxis = zAxis;
+        this.label = label;
     }
 
     public double[] getEpoc() {
@@ -100,6 +102,14 @@ public class AccelerometerOutput {
         this.zAxis = zAxis;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
     public Document toDocument() {
         List<Double> epocList = new ArrayList<>();
         List<String> timestampList = new ArrayList<>();
@@ -129,7 +139,8 @@ public class AccelerometerOutput {
                 .append("z", zList)
                 .append("xAxis", xAxisList)
                 .append("yAxis", yAxisList)
-                .append("zAxis", zAxisList);
+                .append("zAxis", zAxisList)
+                .append("label", label);
 
         return doc;
     }
@@ -166,6 +177,8 @@ public class AccelerometerOutput {
             yAxis[i] = yAxisList.get(i).doubleValue();
             zAxis[i] = zAxisList.get(i).doubleValue();
         }
-        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis);
+
+        String label = doc.getString("label");
+        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis, label);
     }
 }
