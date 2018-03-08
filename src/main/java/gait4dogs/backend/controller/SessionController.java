@@ -46,55 +46,57 @@ public class SessionController {
         JsonNode accelOutputs = sessionObj.get("data");
         // Get acceleration data
         for (JsonNode dataObj : accelOutputs) {
-            JsonNode epocArr = dataObj.get("epoc");
+            JsonNode accelObj = dataObj.get("accelerometer");
+            JsonNode epocArr = accelObj.get("epoc");
             double[] epoc = new double[epocArr.size()];
             for (int i = 0; i < epocArr.size(); i++) {
                 epoc[i] = epocArr.get(i).doubleValue();
             }
 
-            JsonNode timestampArr = dataObj.get("timestamp");
+            JsonNode timestampArr = accelObj.get("timestamp");
             String[] timestamp = new String[timestampArr.size()];
             for (int i = 0; i < timestampArr.size(); i++) {
                 timestamp[i] = timestampArr.get(i).textValue();
             }
 
-            JsonNode elapsedArr = dataObj.get("elapsed");
+            JsonNode elapsedArr = accelObj.get("elapsed");
             double[] elapsed = new double[elapsedArr.size()];
             for (int i = 0; i < elapsedArr.size(); i++) {
                 elapsed[i] = elapsedArr.get(i).doubleValue();
             }
 
-            JsonNode xArr = dataObj.get("x");
+            JsonNode xArr = accelObj.get("x");
             double[] x = new double[xArr.size()];
             for (int i = 0; i < xArr.size(); i++) {
                 x[i] = xArr.get(i).doubleValue();
             }
 
-            JsonNode yArr = dataObj.get("y");
+            JsonNode yArr = accelObj.get("y");
             double[] y = new double[yArr.size()];
             for (int i = 0; i < yArr.size(); i++) {
                 y[i] = yArr.get(i).doubleValue();
             }
 
-            JsonNode zArr = dataObj.get("z");
+            JsonNode zArr = accelObj.get("z");
             double[] z = new double[zArr.size()];
             for (int i = 0; i < zArr.size(); i++) {
                 z[i] = zArr.get(i).doubleValue();
             }
 
-            JsonNode xAxisArr = dataObj.get("xAxis");
+            JsonNode gyroObj = dataObj.get("gyroscope");
+            JsonNode xAxisArr = gyroObj.get("xAxis");
             double[] xAxis = new double[xAxisArr.size()];
             for (int i = 0; i < xAxisArr.size(); i++) {
                 xAxis[i] = xAxisArr.get(i).doubleValue();
             }
 
-            JsonNode yAxisArr = dataObj.get("yAxis");
+            JsonNode yAxisArr = gyroObj.get("yAxis");
             double[] yAxis = new double[yAxisArr.size()];
             for (int i = 0; i < yAxisArr.size(); i++) {
                 yAxis[i] = yAxisArr.get(i).doubleValue();
             }
 
-            JsonNode zAxisArr = dataObj.get("zAxis");
+            JsonNode zAxisArr = gyroObj.get("zAxis");
             double[] zAxis = new double[zAxisArr.size()];
             for (int i = 0; i < zAxisArr.size(); i++) {
                 zAxis[i] = zAxisArr.get(i).doubleValue();
