@@ -38,6 +38,7 @@ public class SessionController {
 
 
         JsonNode sessionObj = mapper.readTree(json);
+        System.out.print(sessionObj.toString());
         String dogId = getJsonNodeText(sessionObj, "dogId");
         String notes = getJsonNodeText(sessionObj, "notes");
         String date = getJsonNodeText(sessionObj, "date");
