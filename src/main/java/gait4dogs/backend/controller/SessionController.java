@@ -12,9 +12,11 @@ import gait4dogs.backend.util.AnalysisUtil;
 import gait4dogs.backend.util.DBUtil;
 import org.bson.Document;
 import org.bson.types.ObjectId;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +31,7 @@ public class SessionController {
     private DBUtil dbUtil;
     @Autowired
     private AnalysisUtil analysisUtil;
+    private static final Logger Logger = LoggerFactory.getLogger(SessionController.class);
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
     @ResponseBody
@@ -38,6 +41,7 @@ public class SessionController {
 
 
         JsonNode sessionObj = mapper.readTree(json);
+        Logger.debug(sessionObj.toString());
         System.out.print(sessionObj.toString());
         String dogId = getJsonNodeText(sessionObj, "dogId");
         String notes = getJsonNodeText(sessionObj, "notes");
