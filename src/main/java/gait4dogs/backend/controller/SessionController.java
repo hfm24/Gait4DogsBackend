@@ -51,6 +51,10 @@ public class SessionController {
         JsonNode accelOutputs = sessionObj.get("data");
         // Get acceleration data
         for (JsonNode dataObj : accelOutputs) {
+
+            //
+            // Accelerometer output
+            //
             JsonNode accelObj = dataObj.get("accelerometer");
             JsonNode epocArr = accelObj.get("epoc");
             double[] epoc = new double[epocArr.size()];
@@ -88,7 +92,30 @@ public class SessionController {
                 z[i] = zArr.get(i).doubleValue();
             }
 
+            //
+            // Gyroscope output
+            //
+
             JsonNode gyroObj = dataObj.get("gyroscope");
+
+            JsonNode gyroEpocArr = gyroObj.get("epoc");
+            double[] gyroEpoc = new double[gyroEpocArr.size()];
+            for (int i = 0; i < gyroEpocArr.size(); i++) {
+                gyroEpoc[i] = gyroEpocArr.get(i).doubleValue();
+            }
+
+            JsonNode gyroTimestampArr = gyroObj.get("timestamp");
+            double[] gyroTimestamp = new double[gyroTimestampArr.size()];
+            for (int i = 0; i < gyroTimestampArr.size(); i++) {
+                gyroTimestamp[i] = gyroTimestampArr.get(i).doubleValue();
+            }
+
+            JsonNode gyroElapsedArr = gyroObj.get("timestamp");
+            double[] gyroElapsed = new double[gyroElapsedArr.size()];
+            for (int i = 0; i < gyroElapsedArr.size(); i++) {
+                gyroElapsed[i] = gyroElapsedArr.get(i).doubleValue();
+            }
+
             JsonNode xAxisArr = gyroObj.get("xAxis");
             double[] xAxis = new double[xAxisArr.size()];
             for (int i = 0; i < xAxisArr.size(); i++) {
@@ -108,7 +135,8 @@ public class SessionController {
             }
 
             String label = getJsonNodeText(dataObj, "label");
-            AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis, label);
+            AccelerometerOutput accelerometerOutput = new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z,
+                    gyroEpoc, gyroTimestamp, gyroElapsed, xAxis, yAxis, zAxis, label);
             accelerometerOutputs.add(accelerometerOutput);
         }
 

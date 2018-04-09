@@ -12,18 +12,26 @@ public class AccelerometerOutput {
     private double[] x;
     private double[] y;
     private double[] z;
+    private double[] gyroEpoc;
+    private double[] gyroTimestamp;
+    private double[] gyroElapsed;
     private double[] xAxis;
     private double[] yAxis;
     private double[] zAxis;
     private String label;
 
-    public AccelerometerOutput(double[] epoc, String[] timestamp, double[] elapsed, double[] x, double[] y, double[] z, double[] xAxis, double[] yAxis, double[] zAxis, String label) {
+    public AccelerometerOutput(double[] epoc, String[] timestamp, double[] elapsed, double[] x, double[] y, double[] z,
+                               double[] gyroEpoc, double[] gyroTimestamp, double[] gyroElapsed, double[] xAxis, double[] yAxis, double[] zAxis,
+                               String label) {
         this.epoc = epoc;
         this.timestamp = timestamp;
         this.elapsed = elapsed;
         this.x = x;
         this.y = y;
         this.z = z;
+        this.gyroEpoc = gyroEpoc;
+        this.gyroTimestamp = gyroTimestamp;
+        this.gyroElapsed = gyroElapsed;
         this.xAxis = xAxis;
         this.yAxis = yAxis;
         this.zAxis = zAxis;
@@ -78,6 +86,30 @@ public class AccelerometerOutput {
         this.z = z;
     }
 
+    public double[] getGyroEpoc() {
+        return gyroEpoc;
+    }
+
+    public void setGyroEpoc(double[] gyroEpoc) {
+        this.gyroEpoc = gyroEpoc;
+    }
+
+    public double[] getGyroTimestamp() {
+        return gyroTimestamp;
+    }
+
+    public void setGyroTimestamp(double[] gyroTimestamp) {
+        this.gyroTimestamp = gyroTimestamp;
+    }
+
+    public double[] getGyroElapsed() {
+        return gyroElapsed;
+    }
+
+    public void setGyroElapsed(double[] gyroElapsed) {
+        this.gyroElapsed = gyroElapsed;
+    }
+
     public double[] getxAxis() {
         return xAxis;
     }
@@ -117,6 +149,9 @@ public class AccelerometerOutput {
         List<Double> xList = new ArrayList<>();
         List<Double> yList = new ArrayList<>();
         List<Double> zList = new ArrayList<>();
+        List<Double> gyroEpocList = new ArrayList<>();
+        List<Double> gyroTimestampList = new ArrayList<>();
+        List<Double> gyroElapsedList = new ArrayList<>();
         List<Double> xAxisList = new ArrayList<>();
         List<Double> yAxisList = new ArrayList<>();
         List<Double> zAxisList = new ArrayList<>();
@@ -127,16 +162,26 @@ public class AccelerometerOutput {
             xList.add(x[i]);
             yList.add(y[i]);
             zList.add(z[i]);
+        }
+
+        for (int i = 0; i < gyroEpoc.length; i++) {
+            gyroEpocList.add(gyroEpoc[i]);
+            gyroTimestampList.add(gyroTimestamp[i]);
+            gyroElapsedList.add(gyroElapsed[i]);
             xAxisList.add(xAxis[i]);
             yAxisList.add(yAxis[i]);
             zAxisList.add(zAxis[i]);
         }
+
         Document doc = new Document("epoc", epocList)
                 .append("timestamp", timestampList)
                 .append("elapsed", elapsedList)
                 .append("x", xList)
                 .append("y", yList)
                 .append("z", zList)
+                .append("gyroEpoc", gyroEpoc)
+                .append("gyroTimestamp", gyroTimestamp)
+                .append("gyroElapsed", gyroElapsed)
                 .append("xAxis", xAxisList)
                 .append("yAxis", yAxisList)
                 .append("zAxis", zAxisList)
@@ -152,6 +197,9 @@ public class AccelerometerOutput {
         List<Double> xList = (List<Double>)doc.get("x");
         List<Double> yList = (List<Double>)doc.get("y");
         List<Double> zList = (List<Double>)doc.get("z");
+        List<Double> gyroEpocList = (List<Double>)doc.get("gyroEpoc");
+        List<Double> gyroTimestampList = (List<Double>)doc.get("gyroTimestamp");
+        List<Double> gyroElapsedList = (List<Double>)doc.get("gyroElapsed");
         List<Double> xAxisList = (List<Double>)doc.get("xAxis");
         List<Double> yAxisList = (List<Double>)doc.get("yAxis");
         List<Double> zAxisList = (List<Double>)doc.get("zAxis");
@@ -162,6 +210,9 @@ public class AccelerometerOutput {
         double[] x = new double[xList.size()];
         double[] y = new double[yList.size()];
         double[] z = new double[zList.size()];
+        double[] gyroEpoc = new double[gyroEpocList.size()];
+        double[] gyroTimestamp = new double[gyroTimestampList.size()];
+        double[] gyroElapsed = new double[gyroElapsedList.size()];
         double[] xAxis = new double[xAxisList.size()];
         double[] yAxis = new double[yAxisList.size()];
         double[] zAxis = new double[zAxisList.size()];
@@ -169,16 +220,22 @@ public class AccelerometerOutput {
         for (int i = 0; i < epoc.length; i++) {
             epoc[i] = epocList.get(i);
             timestamp[i] = timeStampList.get(i);
-            elapsed[i] = elapsedList.get(i).doubleValue();
-            x[i] = xList.get(i).doubleValue();
-            y[i] = yList.get(i).doubleValue();
-            z[i] = zList.get(i).doubleValue();
+            elapsed[i] = elapsedList.get(i);
+            x[i] = xList.get(i);
+            y[i] = yList.get(i);
+            z[i] = zList.get(i);
+        }
+
+        for (int i = 0; i < gyroEpoc.length; i++) {
+            gyroEpoc[i] = gyroEpocList.get(i);
+            gyroTimestamp[i] = gyroTimestampList.get(i);
+            gyroElapsed[i] = gyroElapsedList.get(i);
             xAxis[i] = xAxisList.get(i).doubleValue();
             yAxis[i] = yAxisList.get(i).doubleValue();
             zAxis[i] = zAxisList.get(i).doubleValue();
         }
 
         String label = doc.getString("label");
-        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, xAxis, yAxis, zAxis, label);
+        return new AccelerometerOutput(epoc, timestamp, elapsed, x, y, z, gyroEpoc, gyroTimestamp, gyroElapsed, xAxis, yAxis, zAxis, label);
     }
 }
