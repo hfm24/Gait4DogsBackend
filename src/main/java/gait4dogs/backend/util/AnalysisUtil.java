@@ -267,4 +267,33 @@ public class AnalysisUtil {
         return avgDt;
     }
 
+    private List<Double> getAggregateDifference(Session[] sessions){
+        List<Double> difs = new ArrayList<>();
+
+        // Get each session
+        for (int i=1; i<sessions.length; i++){
+            Session currentSession = sessions[i];
+            SessionAnalytics currentAnalytics = currentSession.getSessionAnalytics();
+            List<AccelerometerOutputAnalytics> acc = currentAnalytics.getAccelerometerOutputAnalytics();
+            // Get the smoothed data for each accelerometer in the session
+            AccelerometerOutputAnalytics a = acc.get(0);
+            AccelerometerOutputAnalytics b = acc.get(1);
+            // Get the maximum magnitude for each accelerometer
+            double[] mags1 = MathUtil.getMagnitudes(a.getSmoothedAcc());
+            double max1 = MathUtil.maximum(mags1);
+            double[] mags2 = MathUtil.getMagnitudes(b.getSmoothedAcc());
+            double max2 = MathUtil.maximum(mags2);
+            double percentDiff;
+            // Get a percent difference of the maximums
+            if(max1 > max2) {
+                percentDiff = (1 - (max2/max1))*100;
+            }
+            else{
+                 percentDiff = (1 - (max1/max2))*100;
+            }
+            difs.add(percentDiff);
+        }
+        return difs;
+    }
+
 }
