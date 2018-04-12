@@ -53,31 +53,40 @@ public class MathUtil {
 
     public static List<Angle> getAngles(AccelerometerOutput accelerometerOutput) {
         List<Angle> output = new ArrayList<Angle>();
-        double[] t = accelerometerOutput.getEpoc();
+        double[] accelT = accelerometerOutput.getEpoc();
         double[] x = accelerometerOutput.getX();
         double[] y = accelerometerOutput.getY();
         double[] z = accelerometerOutput.getZ();
+        double[] gyroT = accelerometerOutput.getGyroEpoc();
         double[] xRot = accelerometerOutput.getxAxis();
         double[] yRot = accelerometerOutput.getyAxis();
         double[] zRot = accelerometerOutput.getzAxis();
         double pitch = 0;
         double roll = 0;
         int averagePeriod = 3;
-        List<double[]> smoothedAcc = averageSmooth(x, y, z, t, averagePeriod);
-        List<double[]> smoothedRot = averageSmooth(xRot, yRot, zRot, t, averagePeriod);
+        List<double[]> smoothedAcc = new ArrayList<>(); //averageSmooth(x, y, z, accelT, averagePeriod);
+        smoothedAcc.add(x);
+        smoothedAcc.add(y);
+        smoothedAcc.add(z);
+        smoothedAcc.add(accelT);
+        List<double[]> smoothedRot = new ArrayList<>(); //averageSmooth(xRot, yRot, zRot, gyroT, averagePeriod);
+        smoothedRot.add(xRot);
+        smoothedRot.add(yRot);
+        smoothedRot.add(zRot);
+        smoothedRot.add(gyroT);
         smoothedRot = FilterUtil.getNoiseAverage(smoothedRot);
-        double[] smoothAccX = smoothedAcc.get(0);
-        double[] smoothAccY = smoothedAcc.get(1);
-        double[] smoothAccZ = smoothedAcc.get(2);
+        //double[] smoothAccX = smoothedAcc.get(0);
+        //double[] smoothAccY = smoothedAcc.get(1);
+        //double[] smoothAccZ = moothedAcc.get(2);
 
         double[] smoothRotX = smoothedRot.get(0);
         double[] smoothRotY = smoothedRot.get(1);
         double[] smoothRotZ = smoothedRot.get(2);
 
-        for (int i = 0; i < smoothedAcc.get(3).length; i++) {
+        for (int i = 0; i < smoothedRot.get(3).length; i++) {
             //System.out.println(t[i*3] + ", " + smoothedAcc.get(i)[0] + ", " + smoothedAcc.get(i)[1] + ", " + smoothedAcc.get(i)[2]);
             //System.out.println(t[i*3] + ", " + smoothedRot.get(i)[0] + ", " + smoothedRot.get(i)[1] + ", " + smoothedRot.get(i)[2]);
-            double[] accX = new double[]{smoothAccX[i],smoothAccY[i], smoothAccZ[i]};
+            double[] accX = accInterpolate(smoothedAcc, smoothedRot.get(3)[i]);
             double[] rotX = new double[]{smoothRotX[i],smoothRotY[i],smoothRotZ[i]};
             Angle thisAngle = FilterUtil.complementaryFilter(accX, rotX, pitch, roll, 0.11f);
             pitch = thisAngle.getPitch();
@@ -86,6 +95,28 @@ public class MathUtil {
         }
 
         return output;
+    }
+
+    public static double[] accInterpolate(List<double[]> accel, double gyroEpoc) {
+        double[] out = new double[3];
+        for (int i = 0; i < accel.get(3).length-1; i++)  {
+            if (accel.get(3)[i] < gyroEpoc && accel.get(3)[i+1] >= gyroEpoc) {
+                double xAccel = linearInterpolate(accel.get(3)[i], gyroEpoc, accel.get(3)[i+1], accel.get(0)[i], accel.get(0)[i+1]);
+                double yAccel = linearInterpolate(accel.get(3)[i], gyroEpoc, accel.get(3)[i+1], accel.get(1)[i], accel.get(1)[i+1]);
+                double zAccel = linearInterpolate(accel.get(3)[i], gyroEpoc, accel.get(3)[i+1], accel.get(2)[i], accel.get(2)[i+1]);
+                out = new double[]{xAccel, yAccel, zAccel};
+            }
+        }
+        return out;
+    }
+
+    // From Wikipedia: If the two known points are given by the coordinates (x0,y0) and
+    // (x1,y1), the linear interpolant is the straight line between these points.
+    // For a value x in the interval (x0,x1), the value y along the straight line
+    // is given from the equation of slopes: (y-y0)/(x-x0) = (y1-y0)/(x1-x0). Solving for y gives the below equation.
+    public static double linearInterpolate(double x0, double x, double x1, double y0, double y1) {
+        double y = y0 + (x - x0) * (y1 - y0) / (x1 - x0);
+        return y;
     }
 
 
