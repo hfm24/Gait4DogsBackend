@@ -105,12 +105,12 @@ public class SessionController {
             }
 
             JsonNode gyroTimestampArr = gyroObj.get("timestamp");
-            double[] gyroTimestamp = new double[gyroTimestampArr.size()];
+            String[] gyroTimestamp = new String[gyroTimestampArr.size()];
             for (int i = 0; i < gyroTimestampArr.size(); i++) {
-                gyroTimestamp[i] = gyroTimestampArr.get(i).doubleValue();
+                gyroTimestamp[i] = gyroTimestampArr.get(i).textValue();
             }
 
-            JsonNode gyroElapsedArr = gyroObj.get("timestamp");
+            JsonNode gyroElapsedArr = gyroObj.get("elapsed");
             double[] gyroElapsed = new double[gyroElapsedArr.size()];
             for (int i = 0; i < gyroElapsedArr.size(); i++) {
                 gyroElapsed[i] = gyroElapsedArr.get(i).doubleValue();

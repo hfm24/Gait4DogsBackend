@@ -73,8 +73,8 @@ public class MathUtil {
         smoothedRot.add(xRot);
         smoothedRot.add(yRot);
         smoothedRot.add(zRot);
-        smoothedRot.add(gyroT);
         smoothedRot = FilterUtil.getNoiseAverage(smoothedRot);
+        smoothedRot.add(gyroT);
         //double[] smoothAccX = smoothedAcc.get(0);
         //double[] smoothAccY = smoothedAcc.get(1);
         //double[] smoothAccZ = moothedAcc.get(2);
