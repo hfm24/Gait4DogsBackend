@@ -16,7 +16,7 @@ public class AnalysisUtil {
 
     }
 
-    public SessionAnalytics doSessionAnalysis(SessionRawData rawData) {
+    public static SessionAnalytics doSessionAnalysis(SessionRawData rawData) {
         List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics = new ArrayList<>();
         for (AccelerometerOutput accelerometerOutput : rawData.getAccelerometerOutputs()) {
             accelerometerOutputAnalytics.add(doAccelerometerAnalytics(accelerometerOutput));
@@ -32,7 +32,7 @@ public class AnalysisUtil {
         }
     }
 
-    public AccelerometerOutputAnalytics doAccelerometerAnalytics(AccelerometerOutput accelerometerOutput) {
+    public static AccelerometerOutputAnalytics doAccelerometerAnalytics(AccelerometerOutput accelerometerOutput) {
         List<double[]> axisData = new ArrayList<>();
         axisData.add(accelerometerOutput.getX());
         axisData.add(accelerometerOutput.getY());
@@ -73,7 +73,7 @@ public class AnalysisUtil {
         return AOA;
     }
 
-    public List<Double> getFootStrikeTimes(List<double[]> axisData) {
+    public static List<Double> getFootStrikeTimes(List<double[]> axisData) {
         // Measuring mean distance between foot strikes
         List<Integer> footStrikes = getFootStrikes(axisData);
         List<Double> footStrikeTimes = new ArrayList<>();
@@ -117,7 +117,7 @@ public class AnalysisUtil {
         return footStrikeTimes;
     }
 
-    public List<Integer> getFootStrikes(List<double[]> accData) {
+    public static List<Integer> getFootStrikes(List<double[]> accData) {
 
         double[] x = accData.get(0);
         double[] y = accData.get(1);
@@ -143,7 +143,7 @@ public class AnalysisUtil {
 
 
 
-    private List<Double> comparePhaseShift(List<double[]> a, List<double[]> b) {
+    private static List<Double> comparePhaseShift(List<double[]> a, List<double[]> b) {
         List<Double> phaseShiftDifs = new ArrayList<>();
         double[] magnitudesControl = a.get(0);
         double[] timesControl = a.get(1);
@@ -171,7 +171,7 @@ public class AnalysisUtil {
         return phaseShiftDifs;
     }
 
-    private List<List<double[]>> getShiftedMagnitudes(AccelerometerOutputAnalytics a, AccelerometerOutputAnalytics b) {
+    private static List<List<double[]>> getShiftedMagnitudes(AccelerometerOutputAnalytics a, AccelerometerOutputAnalytics b) {
         // If accel. 1 has a higher range, use it as the control. Else use accel. 2
         AccelerometerOutputAnalytics control;
         AccelerometerOutputAnalytics compare;
@@ -250,7 +250,7 @@ public class AnalysisUtil {
         return shiftedMagnitudes;
     }
 
-    private double footStrikePeriod(List<Double> footStrikeTimes) {
+    private static double footStrikePeriod(List<Double> footStrikeTimes) {
         if (footStrikeTimes.size() == 0) {
             return 0;
         }
@@ -271,7 +271,7 @@ public class AnalysisUtil {
         return avgDt;
     }
 
-    private List<Double> getAggregateDifference(Session[] sessions){
+    private static List<Double> getAggregateDifference(Session[] sessions){
         List<Double> difs = new ArrayList<>();
 
         // Get each session

@@ -29,8 +29,6 @@ public class SessionController {
     private MongoDatabase db;
     @Autowired
     private DBUtil dbUtil;
-    @Autowired
-    private AnalysisUtil analysisUtil;
     private static final Logger Logger = LoggerFactory.getLogger(SessionController.class);
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -141,7 +139,7 @@ public class SessionController {
         }
 
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
-        SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
+        SessionAnalytics sessionAnalytics = AnalysisUtil.doSessionAnalysis(rawData);
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         // Get latest id
         Integer id = (Integer) dbUtil.getNextSequence("Sessions");
