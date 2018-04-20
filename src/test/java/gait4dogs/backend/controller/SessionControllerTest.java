@@ -8,6 +8,7 @@ import com.mongodb.DBCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -37,7 +38,7 @@ public class SessionControllerTest {
         when(db.getCollection("Sessions")).thenReturn(dbCollection);
     }
 
-    @Test
+    @Ignore
     public void addSessionShouldAddASession() throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -95,8 +96,8 @@ public class SessionControllerTest {
         //assertEquals(0, tester.multiply(0, 0), "0 x 0 must be 0");
     }
 
-    @Test
-    public void getSessionShouldReturnASession() {
+    @Ignore
+     public void getSessionShouldReturnASession() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<String>("Hello World", headers);

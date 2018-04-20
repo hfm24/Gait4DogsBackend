@@ -22,7 +22,10 @@ public class AnalysisUtil {
             accelerometerOutputAnalytics.add(doAccelerometerAnalytics(accelerometerOutput));
         }
 
+
         if (accelerometerOutputAnalytics.size() == 2) {
+            String jointAngleMeasurements = jointAngle(rawData.getAccelerometerOutputs());
+            System.out.println(jointAngleMeasurements);
             List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
             List<Double> phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
             return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
@@ -298,6 +301,24 @@ public class AnalysisUtil {
             difs.add(percentDiff);
         }
         return difs;
+    }
+
+
+    public static String jointAngle(List<AccelerometerOutput> accOutput){
+
+        double[] x1 = accOutput.get(0).getX();
+        double[] y1 = accOutput.get(0).getY();
+        double[] z1 = accOutput.get(0).getZ();
+
+        double[] x2 = accOutput.get(1).getX();
+        double[] y2 = accOutput.get(1).getY();
+        double[] z2 = accOutput.get(1).getZ();
+
+        if(x1.length == x2.length){
+            System.out.println("true");
+        }
+
+        return null;
     }
 
 }
