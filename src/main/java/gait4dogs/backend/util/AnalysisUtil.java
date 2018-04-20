@@ -2,6 +2,7 @@ package gait4dogs.backend.util;
 
 import gait4dogs.backend.data.*;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,8 +25,8 @@ public class AnalysisUtil {
 
 
         if (accelerometerOutputAnalytics.size() == 2) {
-            String jointAngleMeasurements = jointAngle(rawData.getAccelerometerOutputs());
-            System.out.println(jointAngleMeasurements);
+           // String jointAngleMeasurements = jointAngle(rawData.getAccelerometerOutputs());
+           // System.out.println(jointAngleMeasurements);
             List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
             List<Double> phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
             return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
@@ -314,11 +315,13 @@ public class AnalysisUtil {
         double[] y2 = accOutput.get(1).getY();
         double[] z2 = accOutput.get(1).getZ();
 
+        System.out.println(x1.length);
+        System.out.println(x2.length);
         if(x1.length == x2.length){
-            System.out.println("true");
+            return "true";
         }
 
-        return null;
+        return "fasle";
     }
 
 }
