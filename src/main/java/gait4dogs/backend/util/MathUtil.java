@@ -73,8 +73,8 @@ public class MathUtil {
         smoothedRot.add(xRot);
         smoothedRot.add(yRot);
         smoothedRot.add(zRot);
-        smoothedRot.add(gyroT);
         smoothedRot = FilterUtil.getNoiseAverage(smoothedRot);
+        smoothedRot.add(gyroT);
         //double[] smoothAccX = smoothedAcc.get(0);
         //double[] smoothAccY = smoothedAcc.get(1);
         //double[] smoothAccZ = moothedAcc.get(2);
@@ -98,6 +98,15 @@ public class MathUtil {
     }
 
     public static double[] accInterpolate(List<double[]> accel, double gyroEpoc) {
+        // Handling edge cases when the gyro epoc is before or after all acceleration epocs.
+        // Just return the acceleration values for the closest acceleration epoc in that case.
+        if (accel.get(3)[0] >= gyroEpoc) {
+            return new double[]{accel.get(0)[0], accel.get(1)[0], accel.get(2)[0]};
+        }
+        if (accel.get(3)[accel.get(3).length-1] < gyroEpoc) {
+            return new double[]{accel.get(0)[accel.get(3).length-1], accel.get(1)[accel.get(3).length-1], accel.get(2)[accel.get(3).length-1]};
+        }
+
         double[] out = new double[3];
         for (int i = 0; i < accel.get(3).length-1; i++)  {
             if (accel.get(3)[i] < gyroEpoc && accel.get(3)[i+1] >= gyroEpoc) {
@@ -105,6 +114,7 @@ public class MathUtil {
                 double yAccel = linearInterpolate(accel.get(3)[i], gyroEpoc, accel.get(3)[i+1], accel.get(1)[i], accel.get(1)[i+1]);
                 double zAccel = linearInterpolate(accel.get(3)[i], gyroEpoc, accel.get(3)[i+1], accel.get(2)[i], accel.get(2)[i+1]);
                 out = new double[]{xAccel, yAccel, zAccel};
+                break;
             }
         }
         return out;

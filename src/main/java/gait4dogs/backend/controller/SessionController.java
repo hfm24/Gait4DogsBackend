@@ -29,8 +29,6 @@ public class SessionController {
     private MongoDatabase db;
     @Autowired
     private DBUtil dbUtil;
-    @Autowired
-    private AnalysisUtil analysisUtil;
     private static final Logger Logger = LoggerFactory.getLogger(SessionController.class);
 
     @RequestMapping(value="/session/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
@@ -105,12 +103,12 @@ public class SessionController {
             }
 
             JsonNode gyroTimestampArr = gyroObj.get("timestamp");
-            double[] gyroTimestamp = new double[gyroTimestampArr.size()];
+            String[] gyroTimestamp = new String[gyroTimestampArr.size()];
             for (int i = 0; i < gyroTimestampArr.size(); i++) {
-                gyroTimestamp[i] = gyroTimestampArr.get(i).doubleValue();
+                gyroTimestamp[i] = gyroTimestampArr.get(i).textValue();
             }
 
-            JsonNode gyroElapsedArr = gyroObj.get("timestamp");
+            JsonNode gyroElapsedArr = gyroObj.get("elapsed");
             double[] gyroElapsed = new double[gyroElapsedArr.size()];
             for (int i = 0; i < gyroElapsedArr.size(); i++) {
                 gyroElapsed[i] = gyroElapsedArr.get(i).doubleValue();
@@ -141,7 +139,7 @@ public class SessionController {
         }
 
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
-        SessionAnalytics sessionAnalytics = analysisUtil.doSessionAnalysis(rawData);
+        SessionAnalytics sessionAnalytics = AnalysisUtil.doSessionAnalysis(rawData);
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         // Get latest id
         Integer id = (Integer) dbUtil.getNextSequence("Sessions");
