@@ -175,7 +175,7 @@ public class SessionController {
 
     @RequestMapping(value="session/getByDogId", method=RequestMethod.GET)
     //public List<List<Double>> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
-    public ArrayList<String> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+    public ArrayList<Double> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
 
         List<List<Double>> returnValues = new ArrayList<List<Double>>();
         List<Double> percentDiffs = new ArrayList<Double>();
@@ -183,11 +183,9 @@ public class SessionController {
         List<Session> l_Sessions = new ArrayList<>();
         Document currentDoc;
         Session currentSesh;
-        //Double id;
-        String id;
+        Double id;
         MongoCollection<Document> sessions = db.getCollection("Sessions");
-        //List<Double> ids = new ArrayList<>();
-        ArrayList<String> ids = new ArrayList<>();
+        ArrayList<Double> ids = new ArrayList<>();
         BasicDBObject query = new BasicDBObject();
         query.put("dogId", dogId);
         MongoCursor<Document> cursor = sessions.find(query).iterator();
@@ -195,8 +193,7 @@ public class SessionController {
         try {
             while (cursor.hasNext()) {
                 currentDoc = cursor.next();
-                //id = Double.parseDouble(currentDoc.getString("id"));
-                id = currentDoc.getString("id");
+                id = Double.parseDouble(currentDoc.getString("id"));
                 ids.add(id);
                 //currentSesh = Session.toSession(currentDoc);
                 //l_Sessions.add(currentSesh);
