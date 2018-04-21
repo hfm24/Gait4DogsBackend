@@ -195,7 +195,7 @@ public class SessionController {
                 currentDoc = cursor.next();
                 id = Double.parseDouble(currentDoc.getString("id"));
                 ids.add(id);
-                currentSesh = Session.toSession(currentDoc);
+                //currentSesh = Session.toSession(currentDoc);
                 //l_Sessions.add(currentSesh);
             }
         } finally {
