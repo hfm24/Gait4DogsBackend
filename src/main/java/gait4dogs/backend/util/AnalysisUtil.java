@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.sqrt;
 
 public class AnalysisUtil {
 
@@ -25,8 +26,11 @@ public class AnalysisUtil {
 
 
         if (accelerometerOutputAnalytics.size() == 2) {
-           // String jointAngleMeasurements = jointAngle(rawData.getAccelerometerOutputs());
-           // System.out.println(jointAngleMeasurements);
+          /*  List<Double> jointAngleMeasurements = jointAngle(rawData.getAccelerometerOutputs());
+            for(int i = 0; i < jointAngleMeasurements.size(); i++){
+                System.out.println(jointAngleMeasurements.get(i));
+            }
+            */
             List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
             List<Double> phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
             return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
@@ -297,7 +301,7 @@ public class AnalysisUtil {
                 percentDiff = (1 - (max2/max1));
             }
             else{
-                 percentDiff = (1 - (max1/max2));
+                percentDiff = (1 - (max1/max2));
             }
             difs.add(percentDiff);
         }
@@ -305,8 +309,9 @@ public class AnalysisUtil {
     }
 
 
-    public static String jointAngle(List<AccelerometerOutput> accOutput){
+    public static List<Double> jointAngle(List<AccelerometerOutput> accOutput){
 
+        List<Double> angles = new ArrayList<>();
         double[] x1 = accOutput.get(0).getX();
         double[] y1 = accOutput.get(0).getY();
         double[] z1 = accOutput.get(0).getZ();
@@ -315,13 +320,32 @@ public class AnalysisUtil {
         double[] y2 = accOutput.get(1).getY();
         double[] z2 = accOutput.get(1).getZ();
 
-        System.out.println(x1.length);
-        System.out.println(x2.length);
-        if(x1.length == x2.length){
-            return "true";
+        int cutoff = 0;
+
+        if(x1.length > x2.length){
+            cutoff = x2.length;
+        }
+        else
+            cutoff = x1.length;
+
+        for(int i = 0; i < cutoff; i++){
+           /* double top = (x1[i] * x2[i]) + (y1[i] * y2[i]) + (z1[i] * z2[i]);
+            double firstbottom = sqrt((x1[i] * x1[i]) + (y1[i] * y1[i]) + (z1[i] * z1[i]));
+            double secondbottom = sqrt((x2[i] * x2[i]) + (y2[i] * y2[i]) + (z2[i] * z2[i]));
+            double bottom = firstbottom * secondbottom;
+            double solution = top/bottom;
+            double angle  = Math.acos(solution);
+            */
+
+            double a = Math.atan(x1[i]/z1[i]);
+            double b = Math.atan(x2[i]/z2[i]);
+            double angle = 180 - (a+b);
+
+            angles.add(angle);
         }
 
-        return "fasle";
+
+        return angles;
     }
 
 }
