@@ -175,7 +175,7 @@ public class SessionController {
 
     @RequestMapping(value="session/getByDogId", method=RequestMethod.GET)
     //public List<List<Double>> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
-    public ArrayList<Double> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+    public Document getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
 
         List<List<Double>> returnValues = new ArrayList<List<Double>>();
         List<Double> percentDiffs = new ArrayList<Double>();
@@ -184,39 +184,20 @@ public class SessionController {
         Document currentDoc;
         Session currentSesh;
         Double id;
-        // Need these variables in order to make the Session object for each session
-        String stringId;
-        String notes;
-        String date;
-        String gaitType;
-        Document data;
-        SessionRawData rawData;
-        Document sesssionAnalytics;
-        SessionAnalytics sessionAnalytics;
-
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         ArrayList<Double> ids = new ArrayList<>();
         BasicDBObject query = new BasicDBObject();
         query.put("dogId", dogId);
         MongoCursor<Document> cursor = sessions.find(query).iterator();
-        //return currentDoc.getString("id");
-        try {
+        currentDoc = cursor.next();
+        return currentDoc;
+       /* try {
             while (cursor.hasNext()) {
                 currentDoc = cursor.next();
-                stringId = currentDoc.getString("id");
-                id = Double.parseDouble(stringId);
+                id = Double.parseDouble(currentDoc.getString("id"));
                 ids.add(id);
-                notes = currentDoc.getString("notes");
-                date = currentDoc.getString("date");
-                gaitType = currentDoc.getString("gaitType");
-
-                data = (Document)currentDoc.get("rawData");
-                rawData = SessionRawData.toSessionRawData(data);
-
-                sesssionAnalytics = (Document)currentDoc.get("sessionAnalytics");
-                sessionAnalytics = SessionAnalytics.toSessionAnalytics(sesssionAnalytics);
-                currentSesh = new Session(stringId, dogId, rawData, sessionAnalytics, notes, date, gaitType);
-                l_Sessions.add(currentSesh);
+                currentSesh =  (Session) Session.toSession(currentDoc);
+                //l_Sessions.add(currentSesh);
             }
         } finally {
             cursor.close();
@@ -227,7 +208,7 @@ public class SessionController {
         //returnValues.add(percentDiffs);
 
 
-        return ids;
+        return ids;*/
     }
 
     @RequestMapping("/sessionAnalytics/add")
