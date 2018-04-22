@@ -184,6 +184,16 @@ public class SessionController {
         Document currentDoc;
         Session currentSesh;
         Double id;
+        // Need these variables in order to make the Session object for each session
+        String stringId;
+        String notes;
+        String date;
+        String gaitType;
+        Document data;
+        SessionRawData rawData;
+        Document sesssionAnalytics;
+        SessionAnalytics sessionAnalytics;
+
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         ArrayList<Double> ids = new ArrayList<>();
         BasicDBObject query = new BasicDBObject();
@@ -193,10 +203,20 @@ public class SessionController {
         try {
             while (cursor.hasNext()) {
                 currentDoc = cursor.next();
-                id = Double.parseDouble(currentDoc.getString("id"));
+                stringId = currentDoc.getString("id");
+                id = Double.parseDouble(stringId);
                 ids.add(id);
-                //currentSesh = Session.toSession(currentDoc);
-                //l_Sessions.add(currentSesh);
+                notes = currentDoc.getString("notes");
+                date = currentDoc.getString("date");
+                gaitType = currentDoc.getString("gaitType");
+
+                data = (Document)currentDoc.get("rawData");
+                rawData = SessionRawData.toSessionRawData(data);
+
+                sesssionAnalytics = (Document)currentDoc.get("sessionAnalytics");
+                sessionAnalytics = SessionAnalytics.toSessionAnalytics(sesssionAnalytics);
+                currentSesh = new Session(stringId, dogId, rawData, sessionAnalytics, notes, date, gaitType);
+                l_Sessions.add(currentSesh);
             }
         } finally {
             cursor.close();
