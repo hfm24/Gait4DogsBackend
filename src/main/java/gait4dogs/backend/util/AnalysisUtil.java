@@ -283,18 +283,32 @@ public class AnalysisUtil {
         List<Double> difs = new ArrayList<>();
 
         // Get each session
-        for (int i=1; i<sessions.size(); i++){
-            Session currentSession = sessions.get(i);
+        for (int j=0; j<sessions.size(); j++){
+            Session currentSession = sessions.get(j);
             SessionAnalytics currentAnalytics = currentSession.getSessionAnalytics();
             List<AccelerometerOutputAnalytics> acc = currentAnalytics.getAccelerometerOutputAnalytics();
             // Get the smoothed data for each accelerometer in the session
             AccelerometerOutputAnalytics a = acc.get(0);
             AccelerometerOutputAnalytics b = acc.get(1);
             // Get the maximum magnitude for each accelerometer
-            double[] mags1 = MathUtil.getMagnitudes(a.getSmoothedAcc());
-            double max1 = MathUtil.maximum(mags1);
-            double[] mags2 = MathUtil.getMagnitudes(b.getSmoothedAcc());
-            double max2 = MathUtil.maximum(mags2);
+            List<double[]> mags1s = a.getShiftedMagnitudes();
+            double[] mags1 = mags1s.get(0);
+            double max1 = mags1[0];
+            for(int i=1; i<mags1.length; i++){
+                double curr = mags1[i];
+                if(curr > max1){
+                    max1 = curr;
+                }
+            }
+            List<double[]> mags2s = b.getShiftedMagnitudes();
+            double[] mags2 = mags2s.get(0);
+            double max2 = mags2[0];
+            for(int k=1; k<mags2.length; k++){
+                double curr = mags2[k];
+                if(curr > max2){
+                    max2 = curr;
+                }
+            }
             double percentDiff;
             // Get a percent difference of the maximums
             if(max1 > max2) {
