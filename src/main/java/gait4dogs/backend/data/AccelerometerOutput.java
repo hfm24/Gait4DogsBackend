@@ -204,18 +204,91 @@ public class AccelerometerOutput {
         List<Double> yAxisList = (List<Double>)doc.get("yAxis");
         List<Double> zAxisList = (List<Double>)doc.get("zAxis");
 
-        double[] epoc = new double[epocList.size()];
-        String[] timestamp = new String[timeStampList.size()];
-        double[] elapsed = new double[elapsedList.size()];
-        double[] x = new double[xList.size()];
-        double[] y = new double[yList.size()];
-        double[] z = new double[zList.size()];
-        double[] gyroEpoc = new double[gyroEpocList.size()];
-        String[] gyroTimestamp = new String[gyroTimestampList.size()];
-        double[] gyroElapsed = new double[gyroElapsedList.size()];
-        double[] xAxis = new double[xAxisList.size()];
-        double[] yAxis = new double[yAxisList.size()];
-        double[] zAxis = new double[zAxisList.size()];
+        // Add some input validation so old session don't crash the endpoint call
+        double[] epoc;
+        if(epocList == null){
+            epoc = new double[0];
+        }
+        else{
+            epoc = new double[epocList.size()];
+        }
+        String[] timestamp;
+        if(timeStampList == null){
+            timestamp = new String[0];
+        }
+        else{
+            timestamp = new String[timeStampList.size()];
+        }
+        double[] elapsed;
+        if(elapsedList == null) {
+            elapsed = new double[0];
+        }
+        else{
+            elapsed = new double[elapsedList.size()];
+        }
+        double[] x;
+        if(xList == null){
+            x = new double[0];
+        }
+        else{
+            x = new double[xList.size()];
+        }
+        double[] y;
+        if(yList == null){
+            y = new double[0];
+        }
+        else{
+            y = new double[yList.size()];
+        }
+        double[] z;
+        if(zList == null){
+            z = new double[0];
+        }
+        else{
+            z = new double[zList.size()];
+        }
+        double[] gyroEpoc;
+        if(gyroEpocList == null){
+            gyroEpoc = new double[0];
+        }
+        else{
+            gyroEpoc = new double[gyroEpocList.size()];
+        }
+        String[] gyroTimestamp;
+        if(gyroTimestampList == null){
+            gyroTimestamp = new String[0];
+        }
+        else{
+            gyroTimestamp = new String[gyroTimestampList.size()];
+        }
+        double[] gyroElapsed;
+        if(gyroElapsedList == null){
+            gyroElapsed = new double[0];
+        }
+        else{
+            gyroElapsed = new double[gyroElapsedList.size()];
+        }
+        double[] xAxis;
+        if(xAxisList == null){
+            xAxis = new double[0];
+        }
+        else{
+            xAxis = new double[xAxisList.size()];
+        }
+        double[] yAxis;
+        if(yAxisList == null){
+            yAxis = new double[0];
+        }
+        else{
+            yAxis = new double[yAxisList.size()];
+        }
+        double[] zAxis;
+        if(zAxisList == null){
+            zAxis = new double[0];
+        }
+        else{
+            zAxis = new double[zAxisList.size()];
+        }
 
         for (int i = 0; i < epoc.length; i++) {
             epoc[i] = epocList.get(i);
