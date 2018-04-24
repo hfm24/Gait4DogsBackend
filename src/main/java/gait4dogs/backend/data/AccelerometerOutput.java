@@ -228,8 +228,8 @@ public class AccelerometerOutput {
 
         for (int i = 0; i < gyroEpoc.length; i++) {
             gyroEpoc[i] = gyroEpocList.get(i);
-            gyroTimestamp[i] = gyroTimestampList.get(i);
-            gyroElapsed[i] = gyroElapsedList.get(i);
+            //gyroTimestamp[i] = gyroTimestampList.get(i);
+            //gyroElapsed[i] = gyroElapsedList.get(i);
             xAxis[i] = xAxisList.get(i).doubleValue();
             yAxis[i] = yAxisList.get(i).doubleValue();
             zAxis[i] = zAxisList.get(i).doubleValue();
