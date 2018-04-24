@@ -174,14 +174,11 @@ public class SessionController {
     }
 
     @RequestMapping(value="session/getByDogId", method=RequestMethod.GET)
-    public List<String> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+    // Old version. Just returns the sessionIds
+   /* public List<String> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
 
-        List<List<Double>> returnValues = new ArrayList<List<Double>>();
-        List<Double> percentDiffs = new ArrayList<Double>();
         // Get list of session ids using dog id
-        List<Session> l_Sessions = new ArrayList<>();
         Document currentDoc;
-        Session currentSesh;
         String id;
         MongoCollection<Document> sessions = db.getCollection("Sessions");
         List<String> ids = new ArrayList<>();
@@ -194,22 +191,15 @@ public class SessionController {
                 currentDoc = cursor.next();
                 id = currentDoc.getString("id");
                 ids.add(id);
-                //currentSesh = Session.toSession(currentDoc);
-                //l_Sessions.add(currentSesh);
             }
         } finally {
             cursor.close();
         }
 
-        //percentDiffs = AnalysisUtil.getAggregateDifference(l_Sessions);
-        //returnValues.add(ids);
-        //returnValues.add(percentDiffs);
-
-
         return ids;
-    }
+    }*/
 
-    /*public List<List<Double>> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+    public List<List<Double>> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
 
         List<List<Double>> returnValues = new ArrayList<List<Double>>();
         List<Double> percentDiffs = new ArrayList<Double>();
@@ -242,7 +232,7 @@ public class SessionController {
 
 
         return returnValues;
-    }*/
+    }
 
     @RequestMapping("/sessionAnalytics/add")
     public SessionAnalytics addSessionAnalytics(){
