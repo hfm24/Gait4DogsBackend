@@ -178,6 +178,7 @@ public class SessionController {
         // Get latest id
         Integer id = (Integer) dbUtil.getNextSequence("AngleSessions");
         AngleSession angleSession = new AngleSession(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
+        angleSessions.insertOne(angleSession.toDocument());
         return angleSession;
     }
 

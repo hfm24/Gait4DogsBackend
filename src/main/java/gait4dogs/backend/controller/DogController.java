@@ -66,6 +66,20 @@ public class DogController {
         return Dog.toDog(doc);
     }
 
+    @RequestMapping("/dog/delete")
+    public int deleteDog(@RequestParam(value="id", defaultValue = "0") String id) {
+        MongoCollection<Document> dogs = db.getCollection("Dogs");
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("id", id);
+        Document doc = dogs.find(query).first();
+        if (doc == null) {
+            return -1;
+        }
+        dogs.deleteOne(doc);
+        return 1;
+    }
+
     @RequestMapping("/dog/getAll")
     public Dog[] getAll() {
         MongoCollection<Document> dogs = db.getCollection("Dogs");
