@@ -1,6 +1,8 @@
 package gait4dogs.backend.util;
 
 import gait4dogs.backend.data.Angle;
+import gait4dogs.backend.data.Session;
+import gait4dogs.backend.data.SessionRawData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,18 @@ public class FilterUtil {
         return new Angle(pitch, roll);
     }
 
+   /* public static double[] compFilter(double[] accData, double[] rotData, SessionRawData rawData){
+
+        double x = accData[0];
+        double y = accData[1];
+        double z = accData[2];
+
+
+
+        //double top =
+
+        //return angleList;
+    }*/
 
     //noise
     public static List<double[]> getNoiseAverage(List<double[]> gyroData){

@@ -204,6 +204,31 @@ public class SessionController {
     }
 
     @RequestMapping(value="session/getByDogId", method=RequestMethod.GET)
+    // Old version. Just returns the sessionIds
+   /* public List<String> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+
+        // Get list of session ids using dog id
+        Document currentDoc;
+        String id;
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        List<String> ids = new ArrayList<>();
+        BasicDBObject query = new BasicDBObject();
+        query.put("dogId", dogId);
+        MongoCursor<Document> cursor = sessions.find(query).iterator();
+
+        try {
+            while (cursor.hasNext()) {
+                currentDoc = cursor.next();
+                id = currentDoc.getString("id");
+                ids.add(id);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return ids;
+    }*/
+
     public List<List<Double>> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
 
         List<List<Double>> returnValues = new ArrayList<List<Double>>();
@@ -214,10 +239,11 @@ public class SessionController {
         Session currentSesh;
         Double id;
         MongoCollection<Document> sessions = db.getCollection("Sessions");
-        List<Double> ids = new ArrayList<>();
+        ArrayList<Double> ids = new ArrayList<>();
         BasicDBObject query = new BasicDBObject();
         query.put("dogId", dogId);
         MongoCursor<Document> cursor = sessions.find(query).iterator();
+
         try {
             while (cursor.hasNext()) {
                 currentDoc = cursor.next();
@@ -230,9 +256,11 @@ public class SessionController {
             cursor.close();
         }
 
-        percentDiffs = AnalysisUtil.getAggregateDifference(l_Sessions);
-        returnValues.add(ids);
-        returnValues.add(percentDiffs);
+         percentDiffs = AnalysisUtil.getAggregateDifference(l_Sessions);
+         returnValues.add(ids);
+         returnValues.add(percentDiffs);
+
+
         return returnValues;
     }
 
