@@ -45,6 +45,22 @@ public class SessionController {
         String notes = getJsonNodeText(sessionObj, "notes");
         String date = getJsonNodeText(sessionObj, "date");
         String gaitType = getJsonNodeText(sessionObj, "gaitType");
+
+        List<AccelerometerOutput> accelerometerOutputs = extractOutputData(sessionObj);
+        SessionRawData rawData = new SessionRawData(accelerometerOutputs);
+        SessionAnalytics sessionAnalytics = AnalysisUtil.doSessionAnalysis(rawData);
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        // Get latest id
+        Integer id = (Integer) dbUtil.getNextSequence("Sessions");
+        Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
+
+
+        sessions.insertOne(session.toDocument());
+
+        return session;
+    }
+
+    List<AccelerometerOutput> extractOutputData(JsonNode sessionObj) {
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
         JsonNode accelOutputs = sessionObj.get("data");
         // Get acceleration data
@@ -137,18 +153,32 @@ public class SessionController {
                     gyroEpoc, gyroTimestamp, gyroElapsed, xAxis, yAxis, zAxis, label);
             accelerometerOutputs.add(accelerometerOutput);
         }
+        return accelerometerOutputs;
+    }
 
+    @RequestMapping(value="/angleSession/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @ResponseBody
+    public Session addAngleSession(HttpEntity<String> httpEntity) throws IOException {
+        String json = httpEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+
+
+        JsonNode sessionObj = mapper.readTree(json);
+        Logger.debug(sessionObj.toString());
+        System.out.print(sessionObj.toString());
+        String dogId = getJsonNodeText(sessionObj, "dogId");
+        String notes = getJsonNodeText(sessionObj, "notes");
+        String date = getJsonNodeText(sessionObj, "date");
+        String gaitType = getJsonNodeText(sessionObj, "gaitType");
+
+        List<AccelerometerOutput> accelerometerOutputs = extractOutputData(sessionObj);
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
         SessionAnalytics sessionAnalytics = AnalysisUtil.doSessionAnalysis(rawData);
-        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        MongoCollection<Document> angleSessions = db.getCollection("AngleSessions");
         // Get latest id
-        Integer id = (Integer) dbUtil.getNextSequence("Sessions");
-        Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
-
-
-        sessions.insertOne(session.toDocument());
-
-        return session;
+        Integer id = (Integer) dbUtil.getNextSequence("AngleSessions");
+        AngleSession angleSession = new AngleSession(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
+        return angleSession;
     }
 
     @RequestMapping(value="/session/get", method= RequestMethod.GET)
