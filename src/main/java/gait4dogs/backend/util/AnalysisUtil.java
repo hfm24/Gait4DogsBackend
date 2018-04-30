@@ -62,7 +62,7 @@ public class AnalysisUtil {
         double rangeMagnitude = magnitudes[2];*/
         int averagePeriod = 3;
 
-        List<Angle> angles = new ArrayList<>();//MathUtil.getAngles(accelerometerOutput);
+        List<Double> angles = new ArrayList<>();//MathUtil.getAngles(accelerometerOutput);
 
         List<double[]> smoothedAcc = new ArrayList<>(); //MathUtil.averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getEpoc(),averagePeriod);
         smoothedAcc.add(accelerometerOutput.getX());
