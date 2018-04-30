@@ -9,19 +9,25 @@ public class SessionAnalytics {
     private List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics;
     private double phaseShiftTotalDif;
     private double phaseShiftAvgDif;
+    private List<Double> angles; // List of double arrays where each array contains single pitch and single roll
 
     public SessionAnalytics(List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics) {
         this.accelerometerOutputAnalytics = accelerometerOutputAnalytics;
     }
 
-    public SessionAnalytics(List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics, double phaseShiftTotalDif, double phaseShiftAvgDif) {
+    public SessionAnalytics(List<AccelerometerOutputAnalytics> accelerometerOutputAnalytics, List<Double> angles, double phaseShiftTotalDif, double phaseShiftAvgDif) {
         this.accelerometerOutputAnalytics = accelerometerOutputAnalytics;
+        this.angles = angles;
         this.phaseShiftTotalDif = phaseShiftTotalDif;
         this.phaseShiftAvgDif = phaseShiftAvgDif;
     }
 
     public List<AccelerometerOutputAnalytics> getAccelerometerOutputAnalytics() {
         return accelerometerOutputAnalytics;
+    }
+
+    public List<Double> getAngles() {
+        return angles;
     }
 
     public double getPhaseShiftTotalDif() {
@@ -46,6 +52,7 @@ public class SessionAnalytics {
             accelOutAnalyticsDoc.add(accelOutAnalytics.toDocument());
         }
         Document doc = new Document("accelerometerOutputAnalytics", accelOutAnalyticsDoc)
+                .append("angles", angles)
                 .append("phaseShiftTotalDif", phaseShiftTotalDif)
                 .append("phaseShiftAvgDif", phaseShiftAvgDif);
 
@@ -58,8 +65,10 @@ public class SessionAnalytics {
         for (Document accelOutputAnalyticsDoc : analytics) {
             accelerometerOutputAnalytics.add(AccelerometerOutputAnalytics.toAccelerometerOuptutAnalytics(accelOutputAnalyticsDoc));
         }
+        List<Double> angles = (List<Double>)doc.get("angles");
+
         double phaseShiftTotalDif = doc.getDouble("phaseShiftTotalDif");
         double phaseShiftAvgDif = doc.getDouble("phaseShiftAvgDif");
-        return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftTotalDif, phaseShiftAvgDif);
+        return new SessionAnalytics(accelerometerOutputAnalytics,  angles, phaseShiftTotalDif, phaseShiftAvgDif);
     }
 }

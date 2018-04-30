@@ -29,7 +29,7 @@ public class AnalysisUtil {
             List<Double> jointAngles = jointAngle(MathUtil.getAngles(rawData.getAccelerometerOutputs().get(0)), MathUtil.getAngles(rawData.getAccelerometerOutputs().get(1)));
             List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
             List<Double> phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
-            return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
+            return new SessionAnalytics(accelerometerOutputAnalytics, jointAngles, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
         }
         else {
             return new SessionAnalytics(accelerometerOutputAnalytics);
@@ -73,7 +73,7 @@ public class AnalysisUtil {
         List<Double> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
 
         String label = accelerometerOutput.getLabel();
-        AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges, angles, footStrikeTimes, smoothedAcc, label);
+        AccelerometerOutputAnalytics AOA = new AccelerometerOutputAnalytics(minimums, maximums, ranges, footStrikeTimes, smoothedAcc, label);
         return AOA;
     }
 
