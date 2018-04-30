@@ -194,6 +194,20 @@ public class SessionController {
         return Session.toSession(doc);
     }
 
+    @RequestMapping("/session/delete")
+    public int deleteSession(@RequestParam(value="id", defaultValue = "0") String id) {
+        MongoCollection<Document> session = db.getCollection("Sessions");
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("id", id);
+        Document doc = session.find(query).first();
+        if (doc == null) {
+            return -1;
+        }
+        session.deleteOne(doc);
+        return 1;
+    }
+
     @RequestMapping(value="session/getRawData", method=RequestMethod.GET)
     public SessionRawData getSessionRawData(@RequestParam(value="id", defaultValue = "0") String id) {
         Session session = getSession(id);
