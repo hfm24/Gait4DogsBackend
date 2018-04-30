@@ -2,10 +2,7 @@ package gait4dogs.backend.data;
 
 import org.bson.Document;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Session {
+public class AngleSession extends Session {
     private String id;
     private String dogId;
     private SessionRawData rawData;
@@ -14,12 +11,8 @@ public class Session {
     private String date;
     private String gaitType;
 
-    public Session() {
-
-    }
-
-    public Session(String id, String dogId, SessionRawData rawData, SessionAnalytics sessionAnalytics, String notes,
-                   String date, String gaitType) {
+    public AngleSession(String id, String dogId, SessionRawData rawData, SessionAnalytics sessionAnalytics, String notes,
+                        String date, String gaitType) {
         this.id = id;
         this.dogId = dogId;
         this.rawData = rawData;
@@ -69,7 +62,7 @@ public class Session {
         return doc;
     }
 
-    public static Session toSession(Document doc) {
+    public static AngleSession toAngleSession(Document doc) {
         String id = doc.getString("id");
         String dogId = doc.getString("dogId");
         String notes = doc.getString("notes");
@@ -82,6 +75,6 @@ public class Session {
         Document sesssionAnalytics = (Document)doc.get("sessionAnalytics");
         SessionAnalytics sessionAnalytics = SessionAnalytics.toSessionAnalytics(sesssionAnalytics);
 
-        return new Session(id, dogId, rawData, sessionAnalytics, notes, date, gaitType);
+        return new AngleSession(id, dogId, rawData, sessionAnalytics, notes, date, gaitType);
     }
 }

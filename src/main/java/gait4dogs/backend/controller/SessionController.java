@@ -45,6 +45,22 @@ public class SessionController {
         String notes = getJsonNodeText(sessionObj, "notes");
         String date = getJsonNodeText(sessionObj, "date");
         String gaitType = getJsonNodeText(sessionObj, "gaitType");
+
+        List<AccelerometerOutput> accelerometerOutputs = extractOutputData(sessionObj);
+        SessionRawData rawData = new SessionRawData(accelerometerOutputs);
+        SessionAnalytics sessionAnalytics = AnalysisUtil.doSessionAnalysis(rawData);
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        // Get latest id
+        Integer id = (Integer) dbUtil.getNextSequence("Sessions");
+        Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
+
+
+        sessions.insertOne(session.toDocument());
+
+        return session;
+    }
+
+    List<AccelerometerOutput> extractOutputData(JsonNode sessionObj) {
         List<AccelerometerOutput> accelerometerOutputs = new ArrayList<>();
         JsonNode accelOutputs = sessionObj.get("data");
         // Get acceleration data
@@ -137,18 +153,33 @@ public class SessionController {
                     gyroEpoc, gyroTimestamp, gyroElapsed, xAxis, yAxis, zAxis, label);
             accelerometerOutputs.add(accelerometerOutput);
         }
+        return accelerometerOutputs;
+    }
 
+    @RequestMapping(value="/angleSession/add", method= RequestMethod.POST, produces = "application/json", consumes = "application/json")
+    @ResponseBody
+    public Session addAngleSession(HttpEntity<String> httpEntity) throws IOException {
+        String json = httpEntity.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+
+
+        JsonNode sessionObj = mapper.readTree(json);
+        Logger.debug(sessionObj.toString());
+        System.out.print(sessionObj.toString());
+        String dogId = getJsonNodeText(sessionObj, "dogId");
+        String notes = getJsonNodeText(sessionObj, "notes");
+        String date = getJsonNodeText(sessionObj, "date");
+        String gaitType = getJsonNodeText(sessionObj, "gaitType");
+
+        List<AccelerometerOutput> accelerometerOutputs = extractOutputData(sessionObj);
         SessionRawData rawData = new SessionRawData(accelerometerOutputs);
         SessionAnalytics sessionAnalytics = AnalysisUtil.doSessionAnalysis(rawData);
-        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        MongoCollection<Document> angleSessions = db.getCollection("AngleSessions");
         // Get latest id
-        Integer id = (Integer) dbUtil.getNextSequence("Sessions");
-        Session session = new Session(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
-
-
-        sessions.insertOne(session.toDocument());
-
-        return session;
+        Integer id = (Integer) dbUtil.getNextSequence("AngleSessions");
+        AngleSession angleSession = new AngleSession(id.toString(), dogId, rawData, sessionAnalytics, notes, date, gaitType);
+        angleSessions.insertOne(angleSession.toDocument());
+        return angleSession;
     }
 
     @RequestMapping(value="/session/get", method= RequestMethod.GET)
@@ -174,8 +205,32 @@ public class SessionController {
     }
 
     @RequestMapping(value="session/getByDogId", method=RequestMethod.GET)
-    //public List<List<Double>> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
-    public ArrayList<Double> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+    // Old version. Just returns the sessionIds
+   /* public List<String> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
+
+        // Get list of session ids using dog id
+        Document currentDoc;
+        String id;
+        MongoCollection<Document> sessions = db.getCollection("Sessions");
+        List<String> ids = new ArrayList<>();
+        BasicDBObject query = new BasicDBObject();
+        query.put("dogId", dogId);
+        MongoCursor<Document> cursor = sessions.find(query).iterator();
+
+        try {
+            while (cursor.hasNext()) {
+                currentDoc = cursor.next();
+                id = currentDoc.getString("id");
+                ids.add(id);
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return ids;
+    }*/
+
+    public List<List<Double>> getSessionsByDogId(@RequestParam(value="dogId", defaultValue = "0") String dogId) {
 
         List<List<Double>> returnValues = new ArrayList<List<Double>>();
         List<Double> percentDiffs = new ArrayList<Double>();
@@ -189,25 +244,25 @@ public class SessionController {
         BasicDBObject query = new BasicDBObject();
         query.put("dogId", dogId);
         MongoCursor<Document> cursor = sessions.find(query).iterator();
-        //return currentDoc.getString("id");
+
         try {
             while (cursor.hasNext()) {
                 currentDoc = cursor.next();
                 id = Double.parseDouble(currentDoc.getString("id"));
                 ids.add(id);
-                //currentSesh = Session.toSession(currentDoc);
-                //l_Sessions.add(currentSesh);
+                currentSesh = Session.toSession(currentDoc);
+                l_Sessions.add(currentSesh);
             }
         } finally {
             cursor.close();
         }
 
-       // percentDiffs = AnalysisUtil.getAggregateDifference(l_Sessions);
-        //returnValues.add(ids);
-        //returnValues.add(percentDiffs);
+         percentDiffs = AnalysisUtil.getAggregateDifference(l_Sessions);
+         returnValues.add(ids);
+         returnValues.add(percentDiffs);
 
 
-        return ids;
+        return returnValues;
     }
 
     @RequestMapping("/sessionAnalytics/add")
