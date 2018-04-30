@@ -25,28 +25,15 @@ public class FilterUtil {
         if (forceMagnitudeApprox > 0.5 && forceMagnitudeApprox < 2) {
             // Turning around the X axis results in a vector on the Y-axis
             pitchAcc = (double) (Math.atan2(accData[1], accData[2]) * 180 / Math.PI);
-            pitch = (double) (pitch * 0.98 + pitchAcc * 0.02);
+            pitch = (double) (pitch * 0.2 + pitchAcc * 0.8);
 
             // Turning around the Y axis results in a vector on the X-axis
             rollAcc = (double) (Math.atan2(accData[0], accData[2]) * 180 / Math.PI);
-            roll = (double) (roll * 0.98 + rollAcc * 0.02);
+            roll = (double) (roll * 0.2 + rollAcc * 0.8);
         }
 
         return new Angle(pitch, roll);
     }
-
-   /* public static double[] compFilter(double[] accData, double[] rotData, SessionRawData rawData){
-
-        double x = accData[0];
-        double y = accData[1];
-        double z = accData[2];
-
-
-
-        //double top =
-
-        //return angleList;
-    }*/
 
     //noise
     public static List<double[]> getNoiseAverage(List<double[]> gyroData){

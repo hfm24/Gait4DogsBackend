@@ -26,11 +26,7 @@ public class AnalysisUtil {
 
 
         if (accelerometerOutputAnalytics.size() == 2) {
-          /*  List<Double> jointAngleMeasurements = jointAngle(rawData.getAccelerometerOutputs());
-            for(int i = 0; i < jointAngleMeasurements.size(); i++){
-                System.out.println(jointAngleMeasurements.get(i));
-            }
-            */
+            List<Double> jointAngles = jointAngle(MathUtil.getAngles(rawData.getAccelerometerOutputs().get(0)), MathUtil.getAngles(rawData.getAccelerometerOutputs().get(1)));
             List<List<double[]>> shiftedMagnitudes = getShiftedMagnitudes(accelerometerOutputAnalytics.get(0), accelerometerOutputAnalytics.get(1));
             List<Double> phaseShiftDifs = comparePhaseShift(shiftedMagnitudes.get(0), shiftedMagnitudes.get(1));
             return new SessionAnalytics(accelerometerOutputAnalytics, phaseShiftDifs.get(0), phaseShiftDifs.get(1));
@@ -283,18 +279,32 @@ public class AnalysisUtil {
         List<Double> difs = new ArrayList<>();
 
         // Get each session
-        for (int i=1; i<sessions.size(); i++){
-            Session currentSession = sessions.get(i);
+        for (int j=0; j<sessions.size(); j++){
+            Session currentSession = sessions.get(j);
             SessionAnalytics currentAnalytics = currentSession.getSessionAnalytics();
             List<AccelerometerOutputAnalytics> acc = currentAnalytics.getAccelerometerOutputAnalytics();
             // Get the smoothed data for each accelerometer in the session
             AccelerometerOutputAnalytics a = acc.get(0);
             AccelerometerOutputAnalytics b = acc.get(1);
             // Get the maximum magnitude for each accelerometer
-            double[] mags1 = MathUtil.getMagnitudes(a.getSmoothedAcc());
-            double max1 = MathUtil.maximum(mags1);
-            double[] mags2 = MathUtil.getMagnitudes(b.getSmoothedAcc());
-            double max2 = MathUtil.maximum(mags2);
+            List<double[]> mags1s = a.getShiftedMagnitudes();
+            double[] mags1 = mags1s.get(0);
+            double max1 = mags1[0];
+            for(int i=1; i<mags1.length; i++){
+                double curr = mags1[i];
+                if(curr > max1){
+                    max1 = curr;
+                }
+            }
+            List<double[]> mags2s = b.getShiftedMagnitudes();
+            double[] mags2 = mags2s.get(0);
+            double max2 = mags2[0];
+            for(int k=1; k<mags2.length; k++){
+                double curr = mags2[k];
+                if(curr > max2){
+                    max2 = curr;
+                }
+            }
             double percentDiff;
             // Get a percent difference of the maximums
             if(max1 > max2) {
@@ -309,40 +319,34 @@ public class AnalysisUtil {
     }
 
 
-    public static List<Double> jointAngle(List<AccelerometerOutput> accOutput){
+    public static List<Double> jointAngle(List<Angle> angle1, List<Angle> angle2){
 
         List<Double> angles = new ArrayList<>();
-        double[] x1 = accOutput.get(0).getX();
-        double[] y1 = accOutput.get(0).getY();
-        double[] z1 = accOutput.get(0).getZ();
 
-        double[] x2 = accOutput.get(1).getX();
-        double[] y2 = accOutput.get(1).getY();
-        double[] z2 = accOutput.get(1).getZ();
+        for(int i = 0; i < angle1.size(); i ++){
+            double x1 = angle1.get(i).getPitch();
+            double y1 = angle1.get(i).getRoll();
 
-        int cutoff = 0;
+            double x2 = angle2.get(i).getPitch();
+            double y2 = angle2.get(i).getRoll();
 
-        if(x1.length > x2.length){
-            cutoff = x2.length;
-        }
-        else
-            cutoff = x1.length;
 
-        for(int i = 0; i < cutoff; i++){
-           /* double top = (x1[i] * x2[i]) + (y1[i] * y2[i]) + (z1[i] * z2[i]);
+            /*double top = (x1 * x2) + (y1 * y2) + (z1 * z2[i]);
             double firstbottom = sqrt((x1[i] * x1[i]) + (y1[i] * y1[i]) + (z1[i] * z1[i]));
             double secondbottom = sqrt((x2[i] * x2[i]) + (y2[i] * y2[i]) + (z2[i] * z2[i]));
             double bottom = firstbottom * secondbottom;
             double solution = top/bottom;
-            double angle  = Math.acos(solution);
-            */
+            double angle  = Math.acos(solution);*/
 
-            double a = Math.atan(x1[i]/z1[i]);
-            double b = Math.atan(x2[i]/z2[i]);
-            double angle = 180 - (a+b);
 
+            // double a = Math.atan(x1/y1);
+            //double b = Math.ata;
+
+            double angle = 180 - abs(x1 + x2);
+            System.out.println(180 - abs(x1 + x2));
             angles.add(angle);
         }
+
 
 
         return angles;
