@@ -323,7 +323,13 @@ public class AnalysisUtil {
 
         List<Double> angles = new ArrayList<>();
 
-        for(int i = 0; i < angle1.size(); i ++){
+        int size;
+        if (angle1.size() < angle2.size()) {
+            size = angle1.size();
+        } else {
+            size = angle2.size();
+        }
+        for(int i = 0; i < size; i ++){
             double x1 = angle1.get(i).getPitch();
             double y1 = angle1.get(i).getRoll();
 
