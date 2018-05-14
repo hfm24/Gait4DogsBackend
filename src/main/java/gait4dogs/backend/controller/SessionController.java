@@ -194,6 +194,18 @@ public class SessionController {
         return Session.toSession(doc);
     }
 
+    @RequestMapping(value="/angleSession/get", method= RequestMethod.GET)
+    public Session getAngleSession(@RequestParam(value="id", defaultValue = "0") String id){
+        MongoCollection<Document> sessions = db.getCollection("AngleSessions");
+        BasicDBObject query = new BasicDBObject();
+        query.put("id", id);
+        Document doc = sessions.find(query).first();
+        if (doc == null) {
+            return null;
+        }
+        return AngleSession.toSession(doc);
+    }
+
     @RequestMapping("/session/delete")
     public int deleteSession(@RequestParam(value="id", defaultValue = "0") String id) {
         MongoCollection<Document> session = db.getCollection("Sessions");
