@@ -350,7 +350,7 @@ public class AnalysisUtil {
 
             double angle = 180 - abs(x1 + x2);
             System.out.println(180 - abs(x1 + x2));
-            if(angle < 30 || angle > 200){
+            if(angle < 30 || angle > 360){
                 break;
             }
             angles.add(angle);
