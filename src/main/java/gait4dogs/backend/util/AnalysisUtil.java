@@ -64,11 +64,11 @@ public class AnalysisUtil {
 
         List<Double> angles = new ArrayList<>();//MathUtil.getAngles(accelerometerOutput);
 
-        List<double[]> smoothedAcc = new ArrayList<>(); //MathUtil.averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getEpoc(),averagePeriod);
-        smoothedAcc.add(accelerometerOutput.getX());
-        smoothedAcc.add(accelerometerOutput.getY());
-        smoothedAcc.add(accelerometerOutput.getZ());
-        smoothedAcc.add(accelerometerOutput.getEpoc());
+        List<double[]> smoothedAcc = MathUtil.averageSmooth(accelerometerOutput.getX(), accelerometerOutput.getY(), accelerometerOutput.getZ(), accelerometerOutput.getEpoc(),averagePeriod);
+        //smoothedAcc.add(accelerometerOutput.getX());
+        //smoothedAcc.add(accelerometerOutput.getY());
+        //smoothedAcc.add(accelerometerOutput.getZ());
+        //smoothedAcc.add(accelerometerOutput.getEpoc());
 
         List<Double> footStrikeTimes = getFootStrikeTimes(smoothedAcc);
 
